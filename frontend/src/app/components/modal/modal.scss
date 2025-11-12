@@ -1,0 +1,93 @@
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    padding: 2rem;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    transform: scale(0.8);
+    opacity: 0;
+    animation: popIn 0.25s forwards;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.modal-body {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+button {
+    border-radius: 30px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-right: 50px;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.btn-secondary {
+    background-color: #f0f0f0;
+    color: #333;
+    border: none;
+
+    &:hover {
+        background-color: #e0e0e0;
+    }
+}
+
+.btn-danger {
+    background-color: #e53935;
+    color: #fff;
+    border: none;
+
+    &:hover {
+        background-color: #d32f2f;
+    }
+}
+
+/* Animations */
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

@@ -1,0 +1,86 @@
+/* 🌈 Gradient glass background */
+.favorites-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e1f29, #2a2d3e, #3b3e55);
+    background-attachment: fixed;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+h1 {
+    letter-spacing: 1px;
+}
+
+/* 💎 Card styling */
+.favorite-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+
+    &:hover {
+        transform: scale(1.04);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
+
+        .favorite-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* 📸 Image styling */
+.favorite-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    filter: brightness(0.8);
+    transition: filter 0.3s ease;
+
+    &:hover {
+        filter: brightness(1);
+    }
+}
+
+/* 🪩 Overlay with title & buttons */
+.favorite-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+}
+
+/* 💔 Empty state */
+.no-favorites {
+    margin-top: 100px;
+    animation: fadeInUp 0.6s ease;
+}
+
+/* ✨ Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

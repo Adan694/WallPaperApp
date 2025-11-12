@@ -1,0 +1,79 @@
+.navbar-brand {
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.dropdown-item{
+    cursor: pointer;
+}
+.nav-link:hover{
+    color: #0d6efd !important;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+.glass-navbar {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-navbar .nav-link,
+.glass-navbar .navbar-brand {
+    color: #ffffff;
+    transition: color 0.2s;
+}
+
+.glass-navbar .nav-link:hover{
+    color: #0d6efd !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+/* Dropdown menu base style */
+.glass-navbar .dropdown-menu {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+    padding: 0.5rem 0;
+}
+
+/* Dropdown items */
+.glass-navbar .dropdown-item {
+    color: #ffffff;
+    padding: 0.25rem 1rem;
+    font-weight: 500;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+/* Hover effect for items */
+.glass-navbar .dropdown-item:hover {
+    color: #0d6efd !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Active item effect */
+.glass-navbar .dropdown-item:active {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Dropdown divider */
+.glass-navbar .dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Dropdown toggle arrow color */
+.glass-navbar .dropdown-toggle::after {
+    border-top-color: #ffffff;
+    border-right-color: #ffffff;
+}
+
+/* Optional: add subtle lift effect on show */
+.glass-navbar .dropdown-menu.show {
+    transform: translateY(0.2rem);
+    opacity: 1;
+}

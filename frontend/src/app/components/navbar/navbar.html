@@ -1,0 +1,63 @@
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top glass-navbar shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" routerLink="/">WallPaperApp</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/">Home</a>
+        </li>
+
+        <li class="nav-item dropdown" *ngIf="categories.length">
+          <a
+            class="nav-link dropdown-toggle"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Categories
+          </a>
+
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li *ngFor="let cat of categories">
+              <a class="dropdown-item" (click)="goToCategory(cat.name)">
+                {{ cat.name }}
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/favorites">
+            <i class="bi bi-heart-fill text-danger me-1"></i> Favorites
+          </a>
+        </li>
+      </ul>
+
+      <form
+        class="d-flex ms-3"
+        (submit)="searchWallpaper(searchInput.value); $event.preventDefault()"
+      >
+        <input
+          #searchInput
+          class="form-control form-control-sm me-2"
+          type="search"
+          placeholder="Search..."
+          (keyup)="liveSearch(searchInput.value)"
+        />
+
+        <button class="btn btn-outline-light btn-sm" type="submit">Go</button>
+      </form>
+    </div>
+  </div>
+</nav>

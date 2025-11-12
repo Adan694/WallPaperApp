@@ -1,0 +1,97 @@
+.container {
+    animation: fadeIn 0.6s ease-in-out;
+    min-height: 80vh;
+}
+
+.image-wrapper {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+
+    &:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+}
+
+.wallpaper-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 20px;
+    transition: transform 0.4s ease;
+}
+
+.details-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: translateY(-3px);
+    }
+
+    h1 {
+font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);    }
+
+    p {
+font-size: 1.1rem;
+    margin-bottom: 0.5rem;    }
+
+    button {
+        display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+    }
+}
+.btn-download {
+    background: #ffeb3b;
+    color: #1a1a1a;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+
+    &:hover {
+        background: #fdd835;
+    }
+}
+
+ .btn-favorite {
+     background: transparent;
+     border: 2px solid #e91e63;
+     color: #e91e63;
+     padding: 12px 30px;
+     border-radius: 50px;
+     font-weight: 600;
+
+     &:hover {
+         background: #e91e63;
+         color: #fff;
+     }
+ }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.wallpaper-page {
+    min-height: 100vh;
+    transition: background-color 0.5s ease;
+}

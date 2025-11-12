@@ -1,0 +1,60 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section
+  class="hero text-center text-white d-flex align-items-center justify-content-center"
+  [ngStyle]="{ 'background-image': 'url(' + heroBackground + ')' }"
+>
+  <div class="hero-content">
+    <h1 class="display-4 fw-bold">Discover Stunning Wallpapers</h1>
+    <p class="lead">Browse categories and find the perfect wallpaper for your device.</p>
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories container my-5">
+  <h2 class="section-heading mb-3">Categories</h2>
+  <div class="d-flex overflow-auto gap-2 category-scroll py-2">
+    <button
+      *ngFor="let cat of categories"
+      class="btn category-btn text-white shadow-sm"
+      [ngStyle]="{ 'background-color': cat.primary }"
+      (click)="selectCategory(cat.name)"
+      appFadeIn
+    >
+      {{ cat.name }}
+    </button>
+  </div>
+</section>
+
+<!-- Wallpapers Section -->
+<section class="wallpapers-section container my-5">
+  <h2 class="section-heading mb-4">Latest Wallpapers</h2>
+
+  <!-- Wallpapers Grid -->
+  <div class="row g-4" *ngIf="filteredWallpapers.length; else noWallpapers">
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let w of filteredWallpapers" appFadeIn>
+      <div class="wallpaper-card position-relative overflow-hidden rounded shadow-sm">
+        <img [src]="w.imageUrl" [alt]="w.title" class="card-img" />
+        <div class="overlay d-flex flex-column justify-content-end p-3">
+          <h5 class="overlay-title mb-1">{{ w.title }}</h5>
+          <p class="overlay-category mb-0">{{ w.category }}</p>
+          <button
+            class="btn btn-sm btn-outline-light mt-2"
+            (click)="goToWallpaper(w.id); $event.stopPropagation()"
+          >
+            View
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Wallpapers Found -->
+  <ng-template #noWallpapers>
+    <div class="text-center py-5">
+      <h4 class="text-muted">No wallpapers found</h4>
+      <p>Try a different search or explore categories above.</p>
+    </div>
+  </ng-template>
+</section>

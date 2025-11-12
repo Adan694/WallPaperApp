@@ -1,0 +1,91 @@
+.category-page {
+    min-height: 100vh;
+    padding-top: 80px;
+    /* space for fixed navbar */
+}
+
+.category-title {
+    font-size: 2rem;
+    font-weight: 700;
+    border-left: 5px solid currentColor;
+    padding-left: 12px;
+    margin-bottom: 2rem;
+}
+
+.wallpaper-card {
+    cursor: pointer;
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    &:hover .card-img {
+        transform: scale(1.05);
+    }
+
+    .overlay {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        color: #fff;
+        transition: background 0.3s ease;
+
+        .overlay-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .overlay-category {
+            font-size: 0.85rem;
+            color: #ddd;
+        }
+
+        button {
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: #fff;
+                color: #000;
+                transform: scale(1.05);
+            }
+        }
+    }
+}
+
+/* Responsive padding for mobile */
+@media (max-width: 768px) {
+    .category-page {
+        padding: 20px 10px 40px 10px;
+    }
+}
+.no-wallpapers {
+    text-align: center;
+    padding: 4rem 0;
+    color: #666;
+
+    h4 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        color: #999;
+        font-size: 0.95rem;
+    }
+}
