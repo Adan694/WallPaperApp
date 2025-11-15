@@ -35,7 +35,7 @@
   <div class="row g-4" *ngIf="filteredWallpapers.length; else noWallpapers">
     <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let w of filteredWallpapers" appFadeIn>
       <div class="wallpaper-card position-relative overflow-hidden rounded shadow-sm">
-        <img [src]="w.imageUrl" [alt]="w.title" class="card-img" />
+        <img [src]="w.imageUrl" alt="Wallpaper image" title="Wallpaper image" class="card-img" />
         <div class="overlay d-flex flex-column justify-content-end p-3">
           <h5 class="overlay-title mb-1">{{ w.title }}</h5>
           <p class="overlay-category mb-0">{{ w.category }}</p>

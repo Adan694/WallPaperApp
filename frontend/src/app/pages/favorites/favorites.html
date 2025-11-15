@@ -26,7 +26,12 @@
     <div class="row g-4 justify-content-center" *ngIf="favorites.length > 0">
       <div class="col-md-4 col-sm-6" *ngFor="let wall of filteredFavorites">
         <div class="favorite-card shadow-lg rounded-4 overflow-hidden position-relative">
-          <img [src]="wall.imageUrl" [alt]="wall.title" class="img-fluid favorite-img" />
+          <img
+            [src]="wall.imageUrl"
+            [alt]="wall.title || 'Wallpaper'"
+            title="Wallpaper image"
+            class="img-fluid favorite-img"
+          />
           <div class="favorite-overlay p-3 text-start">
             <h5 class="fw-bold text-white mb-1">{{ wall.title }}</h5>
             <small class="text-light">{{ wall.category }}</small>

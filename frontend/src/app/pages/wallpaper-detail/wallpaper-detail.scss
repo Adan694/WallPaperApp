@@ -1,3 +1,7 @@
+:host {
+    padding-top: 60px;
+    display: block;
+}
 /* --- PAGE BACKGROUND --- */
 .wallpaper-page {
     min-height: 100vh;
@@ -7,8 +11,8 @@
     background: rgba(255, 255, 255, 0.05);
 
     /* ★ Soft glow over blurred BG */
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
-
     /* ★ Smooth fade animation */
     animation: fadeBg 1.5s ease;
 }
@@ -44,8 +48,8 @@
 
 /* --- DETAILS CARD (Minimal, Magazine Style) --- */
 .details-card {
-    backdrop-filter: blur(18px);
-    background: rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: blur(9px); 
+    backdrop-filter: blur(18px);   background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 20px;
     padding: 40px;

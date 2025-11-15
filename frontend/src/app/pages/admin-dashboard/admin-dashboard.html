@@ -1,0 +1,304 @@
+<app-admin-sidebar></app-admin-sidebar>
+<div class="admin-dashboard">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo">
+          <span class="logo-icon">🎨</span>
+          <h1>Wallpapers Admin</h1>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info">
+          <span class="user-avatar">👤</span>
+          <span class="user-name">{{ authService.getCurrentUser()?.name }}</span>
+          <button class="logout-btn" (click)="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <!-- Sidebar -->
+
+    <!-- Content Area -->
+    <div class="dashboard-content">
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <h2>Welcome back, Administrator! 👋</h2>
+        <p>Manage your wallpaper collection and track platform performance</p>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="stats-overview" *ngIf="!isLoading; else loadingTemplate">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-1">🖼️</div>
+            <div class="stat-info">
+              <h3>{{ dashboardStats.totalWallpapers }}</h3>
+              <p>Total Wallpapers</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-2">📁</div>
+            <div class="stat-info">
+              <h3>{{ dashboardStats.totalCategories }}</h3>
+              <p>Categories</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-3">⬇️</div>
+            <div class="stat-info">
+              <h3>{{ dashboardStats.totalDownloads }}</h3>
+              <p>Total Downloads</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-4">❤️</div>
+            <div class="stat-info">
+              <h3>{{ dashboardStats.totalLikes }}</h3>
+              <p>Total Likes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #loadingTemplate>
+        <div class="stats-grid loading">
+          <div class="stat-card loading" *ngFor="let i of [1, 2, 3, 4]">
+            <div class="loading-shimmer"></div>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Tabbed Content Section -->
+      <div class="tabbed-section">
+        <div class="tabs-header">
+          <button
+            class="tab-btn"
+            [class.active]="activeTab === 'overview'"
+            (click)="setActiveTab('overview')"
+          >
+            Overview
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="activeTab === 'content'"
+            (click)="setActiveTab('content')"
+          >
+            Content
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="activeTab === 'analytics'"
+            (click)="setActiveTab('analytics')"
+          >
+            Analytics
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="activeTab === 'actions'"
+            (click)="setActiveTab('actions')"
+          >
+            Quick Actions
+          </button>
+        </div>
+
+        <div class="tabs-content">
+          <!-- Overview Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'overview'">
+            <div class="overview-grid">
+              <div class="overview-card">
+                <h3>Platform Summary</h3>
+                <div class="summary-stats">
+                  <div class="summary-item">
+                    <span class="summary-label">Popular Category</span>
+                    <span class="summary-value">{{ dashboardStats.popularCategory }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label">Storage Used</span>
+                    <span class="summary-value">{{ dashboardStats.storageUsed }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label">Recent Uploads</span>
+                    <span class="summary-value">{{ dashboardStats.recentUploads }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="overview-card">
+                <h3>Recent Activities</h3>
+                <div class="activities-list compact">
+                  <div class="activity-item" *ngFor="let activity of recentActivities">
+                    <div class="activity-icon">
+                      {{ getActivityIcon(activity.type) }}
+                    </div>
+                    <div class="activity-content">
+                      <p class="activity-action">{{ activity.action }}</p>
+                      <span class="activity-time">{{ activity.time }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'content'">
+            <div class="content-grid">
+              <div class="content-section">
+                <h3>Recent Wallpapers</h3>
+                <div class="wallpapers-grid" *ngIf="recentWallpapers.length > 0; else noWallpapers">
+                  <div class="wallpaper-item" *ngFor="let wallpaper of recentWallpapers">
+                    <div class="wallpaper-image">
+                      <img
+                        [src]="wallpaper.imageUrl"
+                        [alt]="wallpaper.title"
+                        title="Wallpaper image"
+                      />
+                    </div>
+                    <div class="wallpaper-info">
+                      <h4>{{ wallpaper.displayTitle || wallpaper.title }}</h4>
+                      <span class="wallpaper-category">{{ wallpaper.category }}</span>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noWallpapers>
+                  <div class="no-data">
+                    <p>No wallpapers found</p>
+                  </div>
+                </ng-template>
+                <div class="view-all-container">
+                  <a routerLink="/admin/wallpapers" class="view-all-btn">View All Wallpapers</a>
+                </div>
+              </div>
+
+              <div class="content-section">
+                <h3>Categories</h3>
+                <div class="categories-list">
+                  <div
+                    class="category-item"
+                    *ngFor="let category of categoryStats"
+                    [style.background]="category.secondary"
+                    [style.border-left-color]="category.primary"
+                  >
+                    <span class="category-icon">{{ category.icon }}</span>
+                    <span class="category-name">{{ category.name }}</span>
+                    <span class="category-count">{{ category.count }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'analytics'">
+            <div class="analytics-grid">
+              <div class="analytics-card">
+                <h3>Performance Metrics</h3>
+                <div class="metrics-list">
+                  <div class="metric-item">
+                    <span class="metric-label">Wallpaper Views</span>
+                    <span class="metric-value">1,247</span>
+                    <div class="metric-trend positive">+12%</div>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">User Engagement</span>
+                    <span class="metric-value">68%</span>
+                    <div class="metric-trend positive">+5%</div>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">Download Rate</span>
+                    <span class="metric-value">42%</span>
+                    <div class="metric-trend positive">+8%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="analytics-card">
+                <h3>Top Categories</h3>
+                <div class="top-categories">
+                  <div
+                    class="top-category"
+                    *ngFor="let category of categoryStats.slice(0, 5); let i = index"
+                  >
+                    <span class="category-rank">{{ i + 1 }}</span>
+                    <span class="category-name">{{ category.name }}</span>
+                    <span class="category-percentage">
+                      {{
+                        dashboardStats.totalWallpapers > 0
+                          ? ((category.count / dashboardStats.totalWallpapers) * 100).toFixed(1)
+                          : '0'
+                      }}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'actions'">
+            <div class="actions-grid">
+              <div class="action-category">
+                <h3>Content Management</h3>
+                <div class="action-buttons">
+                  <button class="action-btn primary" routerLink="/admin/wallpapers">
+                    <span class="action-icon">➕</span>
+                    <span>Add New Wallpaper</span>
+                  </button>
+                  <button class="action-btn">
+                    <span class="action-icon">📁</span>
+                    <span>Manage Categories</span>
+                  </button>
+                  <button class="action-btn">
+                    <span class="action-icon">✏️</span>
+                    <span>Edit Featured</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="action-category">
+                <h3>User Management</h3>
+                <div class="action-buttons">
+                  <button class="action-btn" routerLink="/admin/users">
+                    <span class="action-icon">👥</span>
+                    <span>View All Users</span>
+                  </button>
+                  <button class="action-btn">
+                    <span class="action-icon">🛡️</span>
+                    <span>Moderate Content</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="action-category">
+                <h3>System</h3>
+                <div class="action-buttons">
+                  <button class="action-btn">
+                    <span class="action-icon">📊</span>
+                    <span>View Analytics</span>
+                  </button>
+                  <button class="action-btn">
+                    <span class="action-icon">⚙️</span>
+                    <span>System Settings</span>
+                  </button>
+                  <button class="action-btn">
+                    <span class="action-icon">💾</span>
+                    <span>Backup Data</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

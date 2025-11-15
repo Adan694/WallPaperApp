@@ -1,7 +1,10 @@
 /* =======================
    Home Page Styles
 ======================= */
-
+:host {
+    padding-top: 60px;
+    display: block;
+}
 /* Body Background */
 body {
     background: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
