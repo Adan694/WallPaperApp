@@ -24,7 +24,7 @@
 
     <!-- Favorites Grid -->
     <div class="row g-4 justify-content-center" *ngIf="favorites.length > 0">
-      <div class="col-md-4 col-sm-6" *ngFor="let wall of favorites">
+      <div class="col-md-4 col-sm-6" *ngFor="let wall of filteredFavorites">
         <div class="favorite-card shadow-lg rounded-4 overflow-hidden position-relative">
           <img [src]="wall.imageUrl" [alt]="wall.title" class="img-fluid favorite-img" />
           <div class="favorite-overlay p-3 text-start">

@@ -1,6 +1,19 @@
+<app-toast [message]="toastMessage" [type]="toastType"></app-toast>
+
 <app-navbar></app-navbar>
 
-<div [ngStyle]="{ 'background-color': bgColor }" class="wallpaper-page py-5">
+<div class="dynamic-bg" *ngIf="wallpaper">
+  <img [src]="wallpaper.imageUrl" class="blur-bg" />
+</div>
+<app-modal
+  [isOpen]="showModal"
+  title="Remove Wallpaper"
+  message="Are you sure you want to remove this wallpaper from favorites?"
+  (onConfirm)="removeFromFavorites()"
+  (onClose)="closeModal()"
+></app-modal>
+
+<div class="wallpaper-page py-5">
   <div class="container mt-5" *ngIf="!isLoading && wallpaper; else loading">
     <div class="row align-items-center justify-content-center py-5">
       <!-- Image Section -->
@@ -22,8 +35,27 @@
               Download
             </button>
 
-            <button class="btn btn-favorite btn-lg shadow-sm" (click)="addToFavorites()">
+            <button
+              class="btn btn-favorite btn-lg shadow-sm"
+              *ngIf="!isFavorite()"
+              (click)="addToFavorites()"
+            >
               <i class="bi bi-heart me-2"></i> Add to Favorites
+            </button>
+
+            <button
+              class="btn btn-favorite btn-lg shadow-sm btn-danger"
+              *ngIf="isFavorite()"
+              (click)="openModal()"
+            >
+              <i class="bi bi-trash me-2"></i> Remove from Favorites
+            </button>
+
+            <button
+              class="btn btn-share btn-lg shadow-sm d-flex align-items-center gap-2"
+              (click)="share()"
+            >
+              <i class="bi bi-share"></i> Share
             </button>
           </div>
         </div>

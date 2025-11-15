@@ -13,7 +13,8 @@ import { Modal } from '../../components/modal/modal';
 })
 export class Favorites implements OnInit {
   favorites: any[] = [];
-  
+filteredFavorites: any[] = []; // NEW
+
   showModal = false;
   selectedId: number | null = null;
 
@@ -22,12 +23,30 @@ export class Favorites implements OnInit {
   ngOnInit() {
     this.loadFavorites();
     window.addEventListener('storage', () => this.loadFavorites());
+    window.addEventListener('search-wallpapers', (event: any) => {
+    const keyword = event.detail.trim().toLowerCase();
+
+    if (!keyword) {
+      // Reset when search is empty
+      this.filteredFavorites = [...this.favorites];
+      return;
+    }
+
+    // Filter favorites by title or category
+    this.filteredFavorites = this.favorites.filter(
+      f =>
+        f.title.toLowerCase().includes(keyword) ||
+        f.category.toLowerCase().includes(keyword)
+    );
+  });
   }
 
   loadFavorites() {
-    const stored = localStorage.getItem('favorites');
-    this.favorites = stored ? JSON.parse(stored) : [];
-  }
+  const stored = localStorage.getItem('favorites');
+  this.favorites = stored ? JSON.parse(stored) : [];
+  this.filteredFavorites = [...this.favorites]; // NEW
+}
+
 
   viewWallpaper(id: number) {
     this.router.navigate(['/wallpaper', id]);
@@ -44,10 +63,15 @@ export class Favorites implements OnInit {
   }
 
   removeFromFavorites(id: number | null) {
-    if (id === null) return;
+  if (id === null) return;
 
-    this.favorites = this.favorites.filter(f => f.id !== id);
-    localStorage.setItem('favorites', JSON.stringify(this.favorites));
-    this.closeModal();
-  }
+  this.favorites = this.favorites.filter(f => f.id !== id);
+  localStorage.setItem('favorites', JSON.stringify(this.favorites));
+
+  // Update filtered list as well
+  this.filteredFavorites = this.filteredFavorites.filter(f => f.id !== id);
+
+  this.closeModal();
+}
+
 }
