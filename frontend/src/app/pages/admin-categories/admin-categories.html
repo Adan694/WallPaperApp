@@ -1,0 +1,54 @@
+<div class="admin-categories">
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main>
+    <div class="header">
+      <h1>Manage Categories</h1>
+      <button (click)="openAddModal()">➕ Add Category</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cat of categories">
+          <td>{{ cat.name }}</td>
+          <td>
+            <button (click)="openEditModal(cat)">✏️ Edit</button>
+            <button (click)="deleteCategory(cat)">🗑️ Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Add Modal -->
+    <div *ngIf="showAddModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Add Category</h2>
+        <div class="form-group">
+          <label for="new-name">Category Name</label>
+          <input id="new-name" [(ngModel)]="newCategory.name" placeholder="Name" />
+        </div>
+        <button (click)="addCategory()">Add</button>
+        <button (click)="closeModals()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div *ngIf="showEditModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Edit Category</h2>
+        <div class="form-group">
+          <label for="edit-name">Category Name</label>
+          <input id="edit-name" [(ngModel)]="selectedCategory.name" placeholder="Name" />
+        </div>
+        <button (click)="updateCategory()">Update</button>
+        <button (click)="closeModals()">Cancel</button>
+      </div>
+    </div>
+  </main>
+</div>

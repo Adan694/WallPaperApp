@@ -108,7 +108,48 @@ namespace Backend.Data
 
         _context.Wallpapers.Remove(wallpaper);
         await _context.SaveChangesAsync();
+        
         return true;
     }
+    // Add Category
+// Get all categories
+// public async Task<List<Category>> GetCategoriesAsync()
+// {
+//     return await _context.Categories.ToListAsync();
+// }
+
+// Add Category
+public async Task<Category> AddCategoryAsync(Category category)
+{
+    _context.Categories.Add(category);
+    await _context.SaveChangesAsync();
+    return category;
+}
+
+// Update Category
+public async Task<Category?> UpdateCategoryAsync(int id, Category updated)
+{
+    var existing = await _context.Categories.FindAsync(id);
+    if (existing == null) return null;
+
+    existing.Name = updated.Name;
+    existing.PrimaryColor = updated.PrimaryColor;
+    existing.SecondaryColor = updated.SecondaryColor; // optional
+
+    await _context.SaveChangesAsync();
+    return existing;
+}
+
+// Delete Category
+public async Task<bool> DeleteCategoryAsync(int id)
+{
+    var category = await _context.Categories.FindAsync(id);
+    if (category == null) return false;
+
+    _context.Categories.Remove(category);
+    await _context.SaveChangesAsync();
+    return true;
+}
+
     }
 }

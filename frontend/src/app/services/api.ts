@@ -52,4 +52,18 @@ async searchWallpapers(keyword: string) {
   deleteWallpaper(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/wallpapers/${id}`);
   }
+  // --- CATEGORIES ---
+
+addCategory(data: any): Observable<any> {
+  return this.http.post(`${this.baseUrl}/categories`, data);
+}
+
+updateCategory(id: number, data: any): Observable<any> {
+  return this.http.put(`${this.baseUrl}/categories/${id}`, data);
+}
+
+deleteCategory(id: number): Observable<any> {
+  return this.http.delete(`${this.baseUrl}/categories/${id}`);
+}
+
 }
