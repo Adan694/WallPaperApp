@@ -3,7 +3,7 @@
 <app-navbar></app-navbar>
 
 <div class="dynamic-bg" *ngIf="wallpaper">
-  <img [src]="wallpaper.imageUrl" class="blur-bg" />
+  <img [src]="wallpaper.imageUrl" class="blur-bg" alt="Image" />
 </div>
 <app-modal
   [isOpen]="showModal"
@@ -19,7 +19,7 @@
       <!-- Image Section -->
       <div class="col-lg-6 text-center mb-4 mb-lg-0">
         <div class="image-wrapper shadow-lg rounded-4 overflow-hidden">
-          <img [src]="wallpaper.imageUrl" [alt]="wallpaper.title" class="img-fluid wallpaper-img" />
+          <img [src]="wallpaper.imageUrl" alt="image" class="img-fluid wallpaper-img" />
         </div>
       </div>
 
