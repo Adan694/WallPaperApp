@@ -183,64 +183,112 @@ export class AdminWallpapers implements OnInit {
     this.isSubmitting = false;
   }
 
-  // CRUD Operations
-  addWallpaper() {
-    if (!this.newWallpaper.title || !this.newWallpaper.category || !this.newWallpaper.imageUrl) {
-      alert('Please fill in all required fields');
-      return;
-    }
+ addWallpaper() {
+  if (!this.newWallpaper.title || !this.newWallpaper.category || !this.newWallpaper.imageUrl) {
+    alert('Please fill in all required fields');
+    return;
+  }
 
-    this.isSubmitting = true;
-    
-    // Simulate API call - in real app, you'd call your backend
-    setTimeout(() => {
-      const newId = Math.max(...this.wallpapers.map(w => w.id)) + 1;
-      const wallpaper = {
-        id: newId,
-        ...this.newWallpaper,
-        downloads: 0,
-        likes: 0,
-        uploadDate: new Date().toISOString()
-      };
-      
-      this.wallpapers.unshift(wallpaper);
+  // Find the category object
+  const categoryObj = this.categories.find(c => c.name === this.newWallpaper.category);
+  if (!categoryObj) {
+    alert('Invalid category');
+    return;
+  }
+
+  // Prepare payload for backend
+  const payload = {
+    title: this.newWallpaper.title,
+    imageUrl: this.newWallpaper.imageUrl,
+    description: this.newWallpaper.description,
+    categoryId: categoryObj.id   // send numeric ID, not name
+  };
+
+  this.isSubmitting = true;
+
+  this.apiService.addWallpaper(payload).subscribe({
+    next: (response) => {
+      this.wallpapers.unshift({
+        id: response.id,
+        title: response.title,
+        description: response.description,
+        imageUrl: response.imageUrl,
+        category: categoryObj.name  // keep the name for UI
+      });
       this.applyFilters();
       this.closeModals();
       this.isSubmitting = false;
-    }, 1000);
+    },
+    error: () => {
+      alert('Error adding wallpaper');
+      this.isSubmitting = false;
+    }
+  });
+}
+
+
+updateWallpaper() {
+  if (!this.selectedWallpaper.title || !this.selectedWallpaper.category || !this.selectedWallpaper.imageUrl) {
+    alert('Please fill in all required fields');
+    return;
   }
 
-  updateWallpaper() {
-    if (!this.selectedWallpaper.title || !this.selectedWallpaper.category || !this.selectedWallpaper.imageUrl) {
-      alert('Please fill in all required fields');
-      return;
-    }
+  // Find the numeric ID for the selected category
+  const categoryObj = this.categories.find(c => c.name === this.selectedWallpaper.category);
+  if (!categoryObj) {
+    alert('Invalid category');
+    return;
+  }
 
-    this.isSubmitting = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-      const index = this.wallpapers.findIndex(w => w.id === this.selectedWallpaper.id);
-      if (index !== -1) {
-        this.wallpapers[index] = { ...this.selectedWallpaper };
+  // Prepare payload for backend
+  const payload = {
+    title: this.selectedWallpaper.title,
+    imageUrl: this.selectedWallpaper.imageUrl,
+    description: this.selectedWallpaper.description,
+    categoryId: categoryObj.id
+  };
+
+  this.isSubmitting = true;
+
+  this.apiService.updateWallpaper(this.selectedWallpaper.id, payload)
+    .subscribe({
+      next: (updated) => {
+        // Update local array
+        const index = this.wallpapers.findIndex(w => w.id === updated.id);
+        this.wallpapers[index] = {
+          ...updated,
+          category: categoryObj.name  // keep name for UI
+        };
         this.applyFilters();
         this.closeModals();
+        this.isSubmitting = false;
+      },
+      error: () => {
+        alert('Error updating wallpaper');
+        this.isSubmitting = false;
       }
-      this.isSubmitting = false;
-    }, 1000);
-  }
+    });
+}
 
-  deleteWallpaper() {
-    this.isSubmitting = true;
-    
-    // Simulate API call
-    setTimeout(() => {
+
+
+ deleteWallpaper() {
+  this.isSubmitting = true;
+
+  this.apiService.deleteWallpaper(this.selectedWallpaper.id).subscribe({
+    next: () => {
       this.wallpapers = this.wallpapers.filter(w => w.id !== this.selectedWallpaper.id);
       this.applyFilters();
       this.closeModals();
       this.isSubmitting = false;
-    }, 1000);
-  }
+    },
+    error: () => {
+      alert('Error deleting wallpaper');
+      this.isSubmitting = false;
+    }
+  });
+}
+
 
   // Utility methods
   getCategoryColor(categoryName: string) {
