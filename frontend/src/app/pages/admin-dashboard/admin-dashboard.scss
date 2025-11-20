@@ -21,7 +21,8 @@
     border-bottom: none;
     box-shadow: none;
     -webkit-backdrop-filter: none !important;
-        backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 
     .header-content {
         display: flex;

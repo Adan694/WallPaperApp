@@ -1,0 +1,79 @@
+<app-toast [message]="toastMessage" [type]="toastType"></app-toast>
+<app-admin-sidebar></app-admin-sidebar>
+<!-- Header -->
+<header class="admin-header">
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-icon">🎨</span>
+        <h1>Wallpapers Admin</h1>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="user-info">
+        <span class="user-avatar">👤</span>
+        <span class="user-name">{{ authService.getCurrentUser()?.name }}</span>
+        <button class="logout-btn" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="admin-users-page">
+  <h1>All Registered Users</h1>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <table *ngIf="!isLoading && users.length">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <!-- <th>Created At</th> -->
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.id }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <!-- <td>{{ user.createdAt | date : 'medium' }}</td> -->
+        <td>
+          <button class="btn btn-sm btn-danger me-2" (click)="deleteUser(user.id)">Delete</button>
+          <button
+            class="btn btn-sm btn-primary"
+            *ngIf="user.role !== 'admin'"
+            (click)="changeRole(user.id, 'admin')"
+          >
+            Make Admin
+          </button>
+          <button
+            class="btn btn-sm btn-secondary"
+            *ngIf="user.role === 'admin'"
+            (click)="changeRole(user.id, 'user')"
+          >
+            Revoke Admin
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!isLoading && !users.length" class="no-users">No users found.</p>
+</div>
+
+<!-- Confirmation Modal -->
+<app-modal
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [isOpen]="isModalOpen"
+  (onConfirm)="onModalConfirm()"
+  (onClose)="onModalClose()"
+></app-modal>

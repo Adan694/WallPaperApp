@@ -15,15 +15,23 @@
       <i class="bi bi-heart-fill text-danger me-2"></i> My Favorites
     </h1>
 
-    <!-- If no favorites -->
-    <div *ngIf="favorites.length === 0" class="no-favorites">
+    <!-- If no filtered favorites -->
+    <div *ngIf="filteredFavorites.length === 0" class="no-favorites">
       <i class="bi bi-emoji-frown text-light fs-1 mb-3"></i>
-      <p class="lead text-light">You haven't added any wallpapers yet.</p>
-      <a routerLink="/" class="btn btn-outline-light mt-3"> Browse Wallpapers </a>
+
+      <!-- Different messages based on whether we have favorites or not -->
+      <p class="lead text-light" *ngIf="favorites.length === 0">
+        You haven't added any wallpapers yet.
+      </p>
+      <p class="lead text-light" *ngIf="favorites.length > 0">No wallpapers match your search.</p>
+
+      <a routerLink="/" class="btn btn-outline-light mt-3">
+        {{ favorites.length === 0 ? 'Browse Wallpapers' : 'Clear Search' }}
+      </a>
     </div>
 
     <!-- Favorites Grid -->
-    <div class="row g-4 justify-content-center" *ngIf="favorites.length > 0">
+    <div class="row g-4 justify-content-center" *ngIf="filteredFavorites.length > 0">
       <div class="col-md-4 col-sm-6" *ngFor="let wall of filteredFavorites">
         <div class="favorite-card shadow-lg rounded-4 overflow-hidden position-relative">
           <img

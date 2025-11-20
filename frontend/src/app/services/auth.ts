@@ -8,7 +8,6 @@ export class Auth {
   private currentUser: any = null;
 
   login(email: string, password: string): boolean {
-    // Temporary hardcoded admin - replace with API call
     const adminUsers = [
       { email: 'admin@wallpapers.com', password: 'admin123', role: 'admin' },
       { email: 'admin@example.com', password: 'password', role: 'admin' }
@@ -24,6 +23,8 @@ export class Auth {
         name: 'Administrator'
       };
       localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        localStorage.setItem('authToken', 'FAKE_ADMIN_JWT_TOKEN');
+      
       return true;
     }
     

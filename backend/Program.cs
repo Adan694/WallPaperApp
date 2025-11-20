@@ -1,6 +1,10 @@
 using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,7 @@ builder.Services.AddScoped<DataService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -18,9 +23,33 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
+
 
 var app = builder.Build();
 
+// Seed data
 // Seed data
 using (var scope = app.Services.CreateScope())
 {
@@ -30,7 +59,7 @@ using (var scope = app.Services.CreateScope())
     // Seed categories only if none exist
     if (!db.Categories.Any())
     {
-        var categories = new List<Category>
+        var categoriesList = new List<Category>  // CHANGED: categoriesList instead of categories
         {
             new Category { Name = "Nature", PrimaryColor = "#4CAF50", SecondaryColor = "#E8F5E9" },
             new Category { Name = "Space", PrimaryColor = "#2196F3", SecondaryColor = "#E3F2FD" },
@@ -48,35 +77,37 @@ using (var scope = app.Services.CreateScope())
             new Category { Name = "History", PrimaryColor = "#FFEB3B", SecondaryColor = "#FFFDE7" },
             new Category { Name = "Movies", PrimaryColor = "#673AB7", SecondaryColor = "#EDE7F6" }
         };
-        db.Categories.AddRange(categories);
+        db.Categories.AddRange(categoriesList);  // CHANGED: categoriesList instead of categories
         db.SaveChanges();
     }
 
-    // Seed wallpapers only if none exist
-    if (!db.Wallpapers.Any())
+    // Clear and reseed wallpapers - REMOVE THE IF CONDITION
+    db.Wallpapers.RemoveRange(db.Wallpapers);
+    db.SaveChanges();
+
+    var allCategories = db.Categories.ToList();  // CHANGED: allCategories instead of categories
+    var wallpapers = new List<Wallpaper>();
+    for (int i = 1; i <= 100; i++)
     {
-        var categories = db.Categories.ToList();
-        var wallpapers = new List<Wallpaper>();
-        for (int i = 1; i <= 100; i++)
+        var category = allCategories[i % allCategories.Count];  // CHANGED: allCategories instead of categories
+        wallpapers.Add(new Wallpaper
         {
-            var category = categories[i % categories.Count]; // pick a category
-            wallpapers.Add(new Wallpaper
-            {
-                Title = $"{category.Name} Wallpaper {i}",
-                ImageUrl = $"https://picsum.photos/400/300?random={i}",
-                Description = $"Beautiful {category.Name.ToLower()} wallpaper number {i}.",
-                CategoryId = category.Id
-            });
-        }
-        db.Wallpapers.AddRange(wallpapers);
-        db.SaveChanges();
+            Title = $"{category.Name} Wallpaper {i}",
+            ImageUrl = $"https://loremflickr.com/400/300/{category.Name.ToLower()}?lock={i}",
+            Description = $"Beautiful {category.Name.ToLower()} wallpaper number {i}.",
+            CategoryId = category.Id
+        });
     }
+    db.Wallpapers.AddRange(wallpapers);
+    db.SaveChanges();
 }
+app.UseCors();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.UseCors();
+app.UseAuthentication();
 app.MapControllers();
 app.Run();
+

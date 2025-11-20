@@ -31,9 +31,9 @@ export class Home implements OnInit {
   filteredWallpapers: Wallpaper[] = [];
 
   heroImages: string[] = [
-    'https://picsum.photos/1600/600?blur=3',
-    'https://picsum.photos/1600/600?blur=5',
-    'https://picsum.photos/1600/600?blur=7',
+    'https://loremflickr.com/1600/600/landscape?lock=1',
+  'https://loremflickr.com/1600/600/nature?lock=2', 
+  'https://loremflickr.com/1600/600/city?lock=3',
   ];
   currentHeroIndex = 0;
   heroBackground = this.heroImages[0];

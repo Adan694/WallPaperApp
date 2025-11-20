@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { UserAuth } from '../../services/user-auth';
 
 interface Category {
   id: number;
@@ -18,11 +19,13 @@ interface Category {
 })
 export class Navbar implements OnInit {
   categories: Category[] = [];
+  isLoggedIn = false;
 
-  constructor(private api: ApiService, private router: Router) {}
+  constructor(private api: ApiService, private router: Router, private auth: UserAuth) {}
 
   async ngOnInit() {
     this.categories = await this.api.getCategories() || [];
+    this.checkLogin();
   }
 
   searchWallpaper(keyword: string) {
@@ -43,5 +46,13 @@ export class Navbar implements OnInit {
   }, 300);
   }
 
+ checkLogin() {
+    this.isLoggedIn = this.auth.isLoggedIn();
+  }
 
+  logout() {
+    this.auth.logout();
+    this.isLoggedIn = false;
+    // this.router.navigate(['/login']); // redirect to user login page
+  }
 }

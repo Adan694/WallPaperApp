@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api';
 import { AdminSidebar } from '../../components/admin-sidebar/admin-sidebar';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-admin-categories',
@@ -20,7 +21,7 @@ export class AdminCategories implements OnInit {
   selectedCategory: any = null;
   isSubmitting = false;
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService,     public authService: Auth) {}
 
   ngOnInit() {
     this.loadCategories();
@@ -125,5 +126,8 @@ updateCategory() {
       next: () => this.categories = this.categories.filter(c => c.id !== category.id),
       error: () => alert('Error deleting category')
     });
+  }
+   logout() {
+    this.authService.logout();
   }
 }

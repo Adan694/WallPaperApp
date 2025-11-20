@@ -1,0 +1,50 @@
+<!-- Floating particles -->
+<div class="floating-particles">
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<div class="auth-container">
+  <h2 *ngIf="mode === 'login'">Welcome Back</h2>
+  <h2 *ngIf="mode === 'register'">Join Our Community</h2>
+
+  <div
+    *ngIf="message.text"
+    class="message"
+    [class.success]="message.type === 'success'"
+    [class.error]="message.type === 'error'"
+  >
+    {{ message.text }}
+  </div>
+
+  <div class="auth-form">
+    <input *ngIf="mode === 'register'" [(ngModel)]="name" placeholder="Your Name" />
+    <input [(ngModel)]="email" placeholder="Email" type="email" />
+    <input [(ngModel)]="password" type="password" placeholder="Password" />
+
+    <button (click)="submit()" [disabled]="isLoading">
+      {{ isLoading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account' }}
+    </button>
+
+    <p class="switch-text">
+      <span *ngIf="mode === 'login'">
+        Don't have an account?
+        <a (click)="switchMode()">Sign Up</a>
+      </span>
+      <span *ngIf="mode === 'register'">
+        Already have an account?
+        <a (click)="switchMode()">Sign In</a>
+      </span>
+    </p>
+  </div>
+</div>
