@@ -40,20 +40,32 @@ export class Home implements OnInit {
 
   constructor(private api: ApiService, private router: Router) {}
 
-  async ngOnInit() {
-    this.categories = (await this.api.getCategories()) || [];
-    this.wallpapers = (await this.api.getWallpapers()) || [];
-    this.filteredWallpapers = [...this.wallpapers];
+  ngOnInit() {
+  // Load categories
+  this.api.getCategories().subscribe({
+    next: (data) => this.categories = data
+  });
 
-    // Listen for search events from navbar
-    window.addEventListener('search-wallpapers', (event: any) => {
-      const keyword = event.detail.trim().toLowerCase();
+  // Load wallpapers
+  this.api.getWallpapers().subscribe({
+    next: (data) => {
+      this.wallpapers = data;
+      this.filteredWallpapers = [...data];
+    }
+  });
 
-      if (!keyword) {
-        // reset when search is empty
-        this.filteredWallpapers = [...this.wallpapers];
-        return;
-      }
+  // Listen for navbar search
+  window.addEventListener("search-wallpapers", (event: any) => {
+    const keyword = event.detail.trim().toLowerCase();
+
+    if (!keyword) {
+      this.filteredWallpapers = [...this.wallpapers];
+      return;
+    }
+
+    this.filteredWallpapers = this.wallpapers.filter(w =>
+      w.title.toLowerCase().includes(keyword)
+    );
 
       this.filteredWallpapers = this.wallpapers.filter(
         (w) =>

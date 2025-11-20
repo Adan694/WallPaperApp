@@ -27,15 +27,16 @@ export class AdminCategories implements OnInit {
     this.loadCategories();
   }
   
-
- async loadCategories() {
-  try {
-    this.categories = await this.apiService.getCategories();
-    console.log('Loaded categories from backend:', this.categories);
-  } catch (err) {
-    console.error('Error loading categories', err);
-  }
+loadCategories() {
+  this.apiService.getCategories().subscribe({
+    next: (data) => {
+      this.categories = data;
+      console.log("Loaded categories:", data);
+    },
+    error: (err) => console.error("Error loading categories", err)
+  });
 }
+
 
   // --- Modals ---
   openAddModal() {

@@ -14,89 +14,85 @@ export interface User {
   providedIn: 'root'
 })
 export class ApiService {
-    constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
   baseUrl = 'http://localhost:5000/api';
 
-  async getCategories() {
-    const res = await fetch(`${this.baseUrl}/categories`);
-    return await res.json();
+  // WALLPAPERS
+  getWallpapers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/wallpapers`);
   }
 
-  async getWallpapers() {
-    const res = await fetch(`${this.baseUrl}/wallpapers`);
-    return await res.json();
+  getWallpaperById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/wallpapers/${id}`);
   }
 
- async getWallpapersByCategory(category: string) {
-  const res = await fetch(`${this.baseUrl}/wallpapers/category/${category}`);
-  return await res.json();
-}
-
-  getWallpaperById(id: number): Promise<any> {
-  return fetch(`${this.baseUrl}/wallpapers/${id}`).then(res => res.json());
-}
-async searchWallpapers(keyword: string) {
-  const res = await fetch(`${this.baseUrl}/wallpapers/search?q=${encodeURIComponent(keyword)}`);
-  return await res.json();
-}
-
-  async test() {
-    const res = await fetch(`${this.baseUrl}/test`);
-    return await res.json();
+  getWallpapersByCategory(category: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/wallpapers/category/${category}`);
   }
 
-   addWallpaper(data: any): Observable<any> {
+  searchWallpapers(keyword: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/wallpapers/search?q=${keyword}`);
+  }
+
+  addWallpaper(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/wallpapers`, data);
   }
 
-  // PUT
   updateWallpaper(id: number, data: any): Observable<any> {
     return this.http.put(`${this.baseUrl}/wallpapers/${id}`, data);
   }
 
-  // DELETE
   deleteWallpaper(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/wallpapers/${id}`);
   }
-  // --- CATEGORIES ---
 
-addCategory(data: any): Observable<any> {
-  return this.http.post(`${this.baseUrl}/categories`, data);
-}
-
-updateCategory(id: number, data: any): Observable<any> {
-  return this.http.put(`${this.baseUrl}/categories/${id}`, data);
-}
-
-deleteCategory(id: number): Observable<any> {
-  return this.http.delete(`${this.baseUrl}/categories/${id}`);
+  // CATEGORIES
+  getCategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/categories`);
   }
+
+  addCategory(data: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/categories`, data);
+  }
+
+  updateCategory(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/categories/${id}`, data);
+  }
+
+  deleteCategory(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/categories/${id}`);
+  }
+
+  // AUTH
   userRegister(user: any) {
-  return this.http.post(`${this.baseUrl}/auth/register`, user);
-}
+    return this.http.post(`${this.baseUrl}/auth/register`, user);
+  }
 
-userLogin(credentials: any) {
-  return this.http.post(`${this.baseUrl}/auth/login`, credentials);
-}
+  userLogin(credentials: any) {
+    return this.http.post(`${this.baseUrl}/auth/login`, credentials);
+  }
 
-
-
-  // ===== Admin =====
-
-  // Get all users (Admin only)
+  // ADMIN
   getAdminUsers(): Observable<User[]> {
-  return this.http.get<User[]>(`${this.baseUrl}/admin/users`);
+    return this.http.get<User[]>(`${this.baseUrl}/admin/users`);
+  }
+
+  deleteUser(userId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/admin/users/${userId}`);
+  }
+
+  changeUserRole(userId: number, role: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/admin/users/${userId}/role`, { newRole: role });
+  }
+
+  getAnalytics() {
+  return this.http.get(`${this.baseUrl}/admin/analytics`);
 }
 
-deleteUser(userId: number): Observable<any> {
-  return this.http.delete(`${this.baseUrl}/admin/users/${userId}`);
+getAdminActivities() {
+  return this.http.get(`${this.baseUrl}/admin/activities`);
 }
 
-changeUserRole(userId: number, role: string): Observable<any> {
-  return this.http.put(`${this.baseUrl}/admin/users/${userId}/role`, { newRole: role });
 }
 
-
-
-}

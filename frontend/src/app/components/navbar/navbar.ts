@@ -23,10 +23,20 @@ export class Navbar implements OnInit {
 
   constructor(private api: ApiService, private router: Router, private auth: UserAuth) {}
 
-  async ngOnInit() {
-    this.categories = await this.api.getCategories() || [];
-    this.checkLogin();
-  }
+ ngOnInit() {
+  this.api.getCategories().subscribe({
+    next: (data: Category[]) => {
+      this.categories = data;
+    },
+    error: (err) => {
+      console.error('Failed to load categories:', err);
+      this.categories = [];
+    }
+  });
+
+  this.checkLogin();
+}
+
 
   searchWallpaper(keyword: string) {
   if (!keyword) return;

@@ -29,24 +29,31 @@ export class CategoryComponent implements OnInit, OnDestroy {
   constructor(private api: ApiService, private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit() {
-    // Subscribe to route params changes
-    this.route.params.subscribe(async params => {
-      this.categoryName = params['category'] || '';
+  this.route.params.subscribe(params => {
+    this.categoryName = params['category'] || '';
 
-      // Fetch wallpapers for the selected category
-      this.wallpapers = await this.api.getWallpapersByCategory(this.categoryName);
-      this.filteredWallpapers = [...this.wallpapers]; // start with all
-
-      // Fetch categories to get theme colors
-      const categories: Category[] = await this.api.getCategories() || [];
-      const cat = categories.find(
-        c => c.name?.toLowerCase() === this.categoryName.toLowerCase()
-      );
-
-      if (cat) {
-        this.theme = { primary: cat.primary, secondary: cat.secondary };
+    // Get wallpapers
+    this.api.getWallpapersByCategory(this.categoryName).subscribe({
+      next: (data) => {
+        this.wallpapers = data;
+        this.filteredWallpapers = [...data];
       }
     });
+
+    // Get categories to determine theme
+    this.api.getCategories().subscribe({
+      next: (categories: Category[]) => {
+        const cat = categories.find(c =>
+          c.name?.toLowerCase() === this.categoryName.toLowerCase()
+        );
+
+        if (cat) {
+          this.theme = { primary: cat.primary, secondary: cat.secondary };
+        }
+      }
+    });
+  });
+
 
     // 👂 Listen for search event from navbar
     this.searchListener = (event: any) => {

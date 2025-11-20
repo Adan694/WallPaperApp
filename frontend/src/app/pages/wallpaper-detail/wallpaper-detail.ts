@@ -49,16 +49,25 @@ export class WallpaperDetail implements OnInit {
     setTimeout(() => this.toastMessage = '', 3000);
   }
 
-  async ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (id) {
-      this.wallpaper = await this.api.getWallpaperById(id) as FavoriteWallpaper;
-      setTimeout(() => this.bgLoaded = true, 100);
-    }
-    this.isLoading = false;
+ ngOnInit() {
+  const id = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.loadUserFavorites();
+  if (id) {
+    this.api.getWallpaperById(id).subscribe({
+      next: (wp: FavoriteWallpaper) => {
+        this.wallpaper = wp;
+        setTimeout(() => (this.bgLoaded = true), 100);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error("Failed to load wallpaper:", err);
+        this.isLoading = false;
+      }
+    });
   }
+
+  this.loadUserFavorites();
+}
 
   /** Load favorites for the current logged-in user */
  // In both wallpaperdetail.ts and favorites.ts
