@@ -82,14 +82,14 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Clear and reseed wallpapers - REMOVE THE IF CONDITION
-    db.Wallpapers.RemoveRange(db.Wallpapers);
-    db.SaveChanges();
-
-    var allCategories = db.Categories.ToList();  // CHANGED: allCategories instead of categories
+   // Seed wallpapers only if none exist
+if (!db.Wallpapers.Any())
+{
+    var allCategories = db.Categories.ToList();
     var wallpapers = new List<Wallpaper>();
     for (int i = 1; i <= 100; i++)
     {
-        var category = allCategories[i % allCategories.Count];  // CHANGED: allCategories instead of categories
+        var category = allCategories[i % allCategories.Count];
         wallpapers.Add(new Wallpaper
         {
             Title = $"{category.Name} Wallpaper {i}",
@@ -101,6 +101,8 @@ using (var scope = app.Services.CreateScope())
     db.Wallpapers.AddRange(wallpapers);
     db.SaveChanges();
 }
+}
+
 app.UseCors();
 
 app.UseSwagger();

@@ -10,6 +10,7 @@ export interface User {
   role: string;
   createdAt: string;
 }
+
 @Injectable({
   providedIn: 'root'
 })
