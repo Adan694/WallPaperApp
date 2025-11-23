@@ -19,24 +19,27 @@ namespace Backend.Data
         }
 
         // Get all wallpapers (stable order, category name as string)
-        public async Task<List<object>> GetWallpapersAsync()
+      // In DataService.cs - update the GetWallpapersAsync method
+public async Task<List<object>> GetWallpapersAsync()
+{
+    var wallpapers = await _context.Wallpapers
+        .Include(w => w.Category)
+        .OrderBy(w => w.Id)
+        .Select(w => new
         {
-            var wallpapers = await _context.Wallpapers
-                .Include(w => w.Category)
-                .OrderBy(w => w.Id)
-                .Select(w => new
-                {
-                    id = w.Id,
-                    title = w.Title,
-                    description = w.Description,
-                    imageUrl = w.ImageUrl,
-                    category = w.Category.Name
-                })
-                .ToListAsync();
+            id = w.Id,
+            title = w.Title,
+            description = w.Description,
+            imageUrl = w.ImageUrl,
+            category = w.Category.Name,
+            downloads = w.Downloads,
+            likes = w.Likes,
+            createdAt = w.CreatedAt
+        })
+        .ToListAsync();
 
-            return wallpapers.Cast<object>().ToList();
-        }
-
+    return wallpapers.Cast<object>().ToList();
+}
         // Get wallpaper by ID
         public async Task<Wallpaper?> GetWallpaperByIdAsync(int id)
         {
@@ -83,21 +86,45 @@ namespace Backend.Data
     }
 
     // ------------------- UPDATE -------------------
-    public async Task<Wallpaper?> UpdateWallpaperAsync(int id, Wallpaper updated)
+   // ------------------- UPDATE -------------------
+public async Task<Wallpaper?> UpdateWallpaperAsync(int id, Wallpaper updated)
+{
+    try
     {
-        var existing = await _context.Wallpapers.FindAsync(id);
+        // Find the existing entity WITH tracking
+        var existing = await _context.Wallpapers
+            .Include(w => w.Category)
+            .FirstOrDefaultAsync(w => w.Id == id);
 
         if (existing == null)
             return null;
 
-        existing.Title = updated.Title;
-        existing.Description = updated.Description;
-        existing.ImageUrl = updated.ImageUrl;
-        existing.CategoryId = updated.CategoryId;
+        // Update only the properties that are provided (allow partial updates)
+        if (!string.IsNullOrEmpty(updated.Title))
+            existing.Title = updated.Title;
+            
+        if (!string.IsNullOrEmpty(updated.Description))
+            existing.Description = updated.Description;
+            
+        if (!string.IsNullOrEmpty(updated.ImageUrl))
+            existing.ImageUrl = updated.ImageUrl;
+            
+        if (updated.CategoryId > 0)
+            existing.CategoryId = updated.CategoryId;
 
+        // Mark as modified and save
+        _context.Wallpapers.Update(existing);
         await _context.SaveChangesAsync();
+        
         return existing;
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Update error: {ex.Message}");
+        Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+        throw;
+    }
+}
 
     // ------------------- DELETE -------------------
     public async Task<bool> DeleteWallpaperAsync(int id)

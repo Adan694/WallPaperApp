@@ -12,10 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer("Server=DESKTOP-VALVQ9A;Database=WallpaperDB;Trusted_Connection=True;TrustServerCertificate=True;"));
 builder.Services.AddScoped<DataService>();
+builder.Services.AddScoped<FileUploadService>(); // Add this line
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddHttpContextAccessor(); // Add this line
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -48,6 +50,7 @@ builder.Services.AddAuthentication(options =>
 
 
 var app = builder.Build();
+app.UseStaticFiles();
 
 // Seed data
 // Seed data

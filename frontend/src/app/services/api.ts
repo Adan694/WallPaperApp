@@ -1,5 +1,5 @@
 // api.service.ts
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -15,7 +15,7 @@ export interface User {
   providedIn: 'root'
 })
 export class ApiService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   baseUrl = 'http://localhost:5000/api';
 
@@ -36,14 +36,31 @@ export class ApiService {
     return this.http.get<any[]>(`${this.baseUrl}/wallpapers/search?q=${keyword}`);
   }
 
+  // In your api.service.ts - update addWallpaper and updateWallpaper methods
+
+  // In your api.service.ts - FIXED VERSION
   addWallpaper(data: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/wallpapers`, data);
+    let headers = new HttpHeaders();
+
+    // If it's FormData, don't set Content-Type (let browser set it with boundary)
+    // If it's regular object, set Content-Type to application/json
+    if (!(data instanceof FormData)) {
+      headers = headers.set('Content-Type', 'application/json');
+    }
+
+    return this.http.post(`${this.baseUrl}/wallpapers`, data, { headers });
   }
 
   updateWallpaper(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/wallpapers/${id}`, data);
-  }
+    let headers = new HttpHeaders();
 
+    // If it's regular object, set Content-Type to application/json
+    if (!(data instanceof FormData)) {
+      headers = headers.set('Content-Type', 'application/json');
+    }
+
+    return this.http.put(`${this.baseUrl}/wallpapers/${id}`, data, { headers });
+  }
   deleteWallpaper(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/wallpapers/${id}`);
   }
@@ -88,12 +105,12 @@ export class ApiService {
   }
 
   getAnalytics() {
-  return this.http.get(`${this.baseUrl}/admin/analytics`);
-}
+    return this.http.get(`${this.baseUrl}/admin/analytics`);
+  }
 
-getAdminActivities() {
-  return this.http.get(`${this.baseUrl}/admin/activities`);
-}
+  getAdminActivities() {
+    return this.http.get(`${this.baseUrl}/admin/activities`);
+  }
 
 }
 

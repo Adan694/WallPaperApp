@@ -173,3 +173,4 @@ E:\WallPaper Project\backend\obj\Debug\net10.0\refint\Backend.dll
 E:\WallPaper Project\backend\obj\Debug\net10.0\Backend.pdb
 E:\WallPaper Project\backend\obj\Debug\net10.0\Backend.genruntimeconfig.cache
 E:\WallPaper Project\backend\obj\Debug\net10.0\ref\Backend.dll
+E:\WallPaper Project\backend\bin\Debug\net10.0\Backend.staticwebassets.runtime.json

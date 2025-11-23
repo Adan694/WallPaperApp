@@ -224,6 +224,7 @@
   </main>
 
   <!-- Add Wallpaper Modal -->
+  <!-- Add Wallpaper Modal -->
   <div *ngIf="showAddModal" class="modal-overlay" (click)="closeModals()">
     <div
       class="modal-content"
@@ -264,16 +265,53 @@
           </select>
         </div>
 
+        <!-- UPDATED: Image Source Selection -->
         <div class="form-group">
-          <label for="add-image-url">Image URL *</label>
-          <input
-            id="add-image-url"
-            type="text"
-            [(ngModel)]="newWallpaper.imageUrl"
-            class="form-input"
-            placeholder="Enter image URL"
-            aria-required="true"
-          />
+          <label>Image Source *</label>
+
+          <!-- URL Input -->
+          <div class="image-source-option" *ngIf="!newWallpaper.useFileUpload">
+            <label for="add-image-url">Image URL</label>
+            <input
+              id="add-image-url"
+              type="text"
+              [(ngModel)]="newWallpaper.imageUrl"
+              class="form-input"
+              placeholder="Enter image URL"
+              aria-required="true"
+            />
+            <button
+              type="button"
+              class="switch-upload-btn"
+              (click)="newWallpaper.useFileUpload = true"
+            >
+              📁 Or upload from computer
+            </button>
+          </div>
+
+          <!-- File Upload -->
+          <div class="image-source-option" *ngIf="newWallpaper.useFileUpload">
+            <label for="add-image-file">Upload Image</label>
+            <input
+              id="add-image-file"
+              type="file"
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              class="form-input"
+              aria-required="true"
+            />
+            <div class="file-info" *ngIf="newWallpaper.imageFile">
+              <span>Selected: {{ newWallpaper.imageFile.name }}</span>
+              <button type="button" class="clear-file-btn" (click)="clearFileSelection()">×</button>
+            </div>
+            <button
+              type="button"
+              class="switch-upload-btn"
+              (click)="newWallpaper.useFileUpload = false"
+            >
+              🔗 Or use URL instead
+            </button>
+          </div>
         </div>
 
         <div class="form-group">
@@ -297,6 +335,7 @@
     </div>
   </div>
 
+  <!-- Edit Wallpaper Modal -->
   <!-- Edit Wallpaper Modal -->
   <div *ngIf="showEditModal" class="modal-overlay" (click)="closeModals()">
     <div
@@ -336,15 +375,71 @@
           </select>
         </div>
 
+        <!-- UPDATED: Image Source Selection -->
+        <!-- Image Source Selection -->
         <div class="form-group">
-          <label for="edit-image-url">Image URL *</label>
-          <input
-            id="edit-image-url"
-            type="text"
-            [(ngModel)]="selectedWallpaper.imageUrl"
-            class="form-input"
-            aria-required="true"
-          />
+          <label>Image Source *</label>
+
+          <!-- Mode Toggle -->
+          <div class="mode-toggle">
+            <button
+              type="button"
+              class="toggle-btn"
+              [class.active]="!newWallpaper.useFileUpload"
+              (click)="switchToUrlMode()"
+            >
+              🔗 URL
+            </button>
+            <button
+              type="button"
+              class="toggle-btn"
+              [class.active]="newWallpaper.useFileUpload"
+              (click)="switchToFileMode()"
+            >
+              📁 File Upload
+            </button>
+          </div>
+
+          <!-- URL Input -->
+          <div class="image-source-option" *ngIf="!newWallpaper.useFileUpload">
+            <label for="add-image-url">Image URL *</label>
+            <input
+              id="add-image-url"
+              type="text"
+              [(ngModel)]="newWallpaper.imageUrl"
+              class="form-input"
+              placeholder="https://example.com/image.jpg"
+            />
+            <div class="form-hint" *ngIf="newWallpaper.imageFile">
+              ℹ️ You have a file selected, but URL mode is active
+            </div>
+          </div>
+
+          <!-- File Upload -->
+          <div class="image-source-option" *ngIf="newWallpaper.useFileUpload">
+            <label for="add-image-file">Upload Image *</label>
+            <input
+              id="add-image-file"
+              type="file"
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              class="form-input"
+              #fileInput
+            />
+            <div class="file-info" *ngIf="newWallpaper.imageFile">
+              <span>✅ Selected: {{ newWallpaper.imageFile.name }}</span>
+              <button
+                type="button"
+                class="clear-file-btn"
+                (click)="clearFileSelection(); fileInput.value = ''"
+              >
+                ×
+              </button>
+            </div>
+            <div class="file-info" *ngIf="!newWallpaper.imageFile">
+              <span>📁 No file selected</span>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -366,7 +461,6 @@
       </div>
     </div>
   </div>
-
   <!-- Delete Confirmation Modal -->
   <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeModals()">
     <div
