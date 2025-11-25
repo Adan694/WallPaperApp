@@ -10,6 +10,20 @@ export interface User {
   role: string;
   createdAt: string;
 }
+interface AnalyticsResponse {
+  totalDownloads: number;
+  totalLikes: number;
+  popularCategory: string;
+  recentUploads: any[];
+  storageUsed: string;
+}
+
+interface ActivityLog {
+  action: string;
+  details: string;
+  time: string;
+  type: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -104,13 +118,41 @@ export class ApiService {
     return this.http.put(`${this.baseUrl}/admin/users/${userId}/role`, { newRole: role });
   }
 
-  getAnalytics() {
-    return this.http.get(`${this.baseUrl}/admin/analytics`);
+  getAnalytics(): Observable<AnalyticsResponse> {
+  return this.http.get<AnalyticsResponse>(`${this.baseUrl}/admin/analytics`);
+}
+
+getAdminActivities(): Observable<ActivityLog[]> {
+  return this.http.get<ActivityLog[]>(`${this.baseUrl}/admin/activities`);
+}
+incrementDownload(id: number) {
+    return this.http.post(`/api/wallpapers/${id}/download`, {});
   }
 
-  getAdminActivities() {
-    return this.http.get(`${this.baseUrl}/admin/activities`);
-  }
+
+incrementLike(wallpaperId: number) {
+  return this.http.post(`/api/wallpapers/${wallpaperId}/like`, {});
+}
+downloadWallpaper(wallpaper: any) {
+  const url = `http://localhost:5000/api/wallpapers/download/${wallpaper.id}`;
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = wallpaper.title || 'wallpaper';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+// Correct like method
+likeWallpaper(id: number, userEmail: string) {
+  return this.http.post(`${this.baseUrl}/wallpapers/${id}/like`, { userEmail });
+}
+
+unlikeWallpaper(id: number, userEmail: string) {
+  return this.http.post(`${this.baseUrl}/wallpapers/${id}/unlike`, { userEmail });
+}
+
+
+
 
 }
 

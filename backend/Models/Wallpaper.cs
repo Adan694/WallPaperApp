@@ -17,5 +17,7 @@ namespace Backend.Models
         // This property is only for form binding, not stored in database
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
+            public List<string> LikedBy { get; set; } = new List<string>();
+
     }
 }

@@ -6,6 +6,7 @@ import { Navbar } from '../../components/navbar/navbar';
 import { Modal } from '../../components/modal/modal';
 import { Toast } from '../../components/toast/toast';
 import { UserAuth } from '../../services/user-auth';
+import { LikeButton } from '../../components/likebutton/likebutton';
 
 interface FavoriteWallpaper {
   id: number;
@@ -14,12 +15,14 @@ interface FavoriteWallpaper {
   imageUrl: string;
   category: string;
   userEmail: string;
+    likes: string[]; // ✅ add this
+
 }
 
 @Component({
   selector: 'app-wallpaper-detail',
   standalone: true,
-  imports: [CommonModule, Navbar, Modal, Toast],
+  imports: [CommonModule, Navbar, Modal, Toast, LikeButton],
   templateUrl: './wallpaper-detail.html',
   styleUrls: ['./wallpaper-detail.scss']
 })
@@ -55,7 +58,10 @@ export class WallpaperDetail implements OnInit {
   if (id) {
     this.api.getWallpaperById(id).subscribe({
       next: (wp: FavoriteWallpaper) => {
-        this.wallpaper = wp;
+        // Ensure likes is always an array
+        const likesArray = Array.isArray(wp.likes) ? wp.likes : JSON.parse(wp.likes || '[]');
+
+        this.wallpaper = { ...wp, likes: likesArray };
         setTimeout(() => (this.bgLoaded = true), 100);
         this.isLoading = false;
       },
@@ -68,6 +74,7 @@ export class WallpaperDetail implements OnInit {
 
   this.loadUserFavorites();
 }
+
 
   /** Load favorites for the current logged-in user */
  // In both wallpaperdetail.ts and favorites.ts
@@ -92,20 +99,27 @@ loadUserFavorites() {
   console.log('Loaded favorites:', this.favorites);
 }
 
-  downloadWallpaper() {
-    if (!this.wallpaper) return;
-    const { imageUrl, title } = this.wallpaper;
-    fetch(imageUrl)
-      .then(res => res.blob())
-      .then(blob => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${title}.jpg`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      })
-      .catch(err => console.error('Download error:', err));
-  }
+ downloadWallpaper() {
+  if (!this.wallpaper) return;
+
+  // Use backend endpoint which increments download count
+  const url = `http://localhost:5000/api/wallpapers/download/${this.wallpaper.id}`;
+
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error('Download failed');
+      return res.blob();
+    })
+    .then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+a.download = `${this.wallpaper!.title}.jpg`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    })
+    .catch(err => console.error('Download error:', err));
+}
+
 
  addToFavorites() {
   if (!this.wallpaper) return;

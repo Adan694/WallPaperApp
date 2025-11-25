@@ -371,6 +371,90 @@ public async Task<IActionResult> UpdateWallpaper(int id, [FromForm] WallpaperUpd
 
             return Ok(new { message = "Wallpaper deleted successfully." });
         }
+        // GET /api/wallpapers/download/{id}
+[HttpGet("download/{id:int}")]
+public async Task<IActionResult> DownloadWallpaper(int id)
+{
+    var wallpaper = await _dataService.GetWallpaperByIdAsync(id);
+
+    if (wallpaper == null)
+        return NotFound("Wallpaper not found");
+
+    // Increment downloads
+    wallpaper.Downloads += 1;
+    await _dataService.UpdateWallpaperdownloadAsync(id, wallpaper);
+
+    if (wallpaper.ImageUrl.StartsWith("/uploads/"))
+    {
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", wallpaper.ImageUrl.TrimStart('/'));
+        if (!System.IO.File.Exists(filePath))
+            return NotFound("Image file not found");
+
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+        string fileName = Path.GetFileName(filePath);
+        return File(fileBytes, "application/octet-stream", fileName);
+    }
+
+    // External URL
+    return Redirect(wallpaper.ImageUrl);
+}
+
+[HttpPost("{id}/download")]
+public async Task<IActionResult> IncrementDownloadCount(int id)
+{
+    var success = await _dataService.IncrementDownloadsAsync(id);
+    if (!success) return NotFound();
+    return Ok();
+}
+
+// [HttpPost("{id}/like")]
+// public async Task<IActionResult> LikeWallpaper(int id)
+// {
+//     var success = await _dataService.IncrementLikesAsync(id);
+//     if (!success) return NotFound();
+//     return Ok();
+// }
+[HttpPost("{id}/like")]
+public async Task<IActionResult> LikeWallpaper(int id, [FromBody] LikeDto dto)
+{
+    if (string.IsNullOrEmpty(dto.UserEmail))
+        return BadRequest("UserEmail is required");
+
+    var wallpaper = await _dataService.GetWallpaperByIdAsync(id);
+    if (wallpaper == null) return NotFound();
+
+    if (wallpaper.LikedBy.Contains(dto.UserEmail))
+        return BadRequest("User already liked this wallpaper");
+
+    wallpaper.LikedBy.Add(dto.UserEmail);
+    wallpaper.Likes = wallpaper.LikedBy.Count;
+
+    await _dataService.UpdateWallpaperAsync(id, wallpaper);
+
+    return Ok(new { likedBy = wallpaper.LikedBy });
+}
+
+[HttpPost("{id}/unlike")]
+public async Task<IActionResult> UnlikeWallpaper(int id, [FromBody] LikeDto dto)
+{
+    if (string.IsNullOrEmpty(dto.UserEmail))
+        return BadRequest("UserEmail is required");
+
+    var wallpaper = await _dataService.GetWallpaperByIdAsync(id);
+    if (wallpaper == null) return NotFound();
+
+    if (wallpaper.LikedBy.Contains(dto.UserEmail))
+    {
+        wallpaper.LikedBy.Remove(dto.UserEmail);
+        wallpaper.Likes = wallpaper.LikedBy.Count;
+        await _dataService.UpdateWallpaperAsync(id, wallpaper);
+    }
+
+    return Ok(new { likedBy = wallpaper.LikedBy });
+}
+
+
+
     }
 
     // DTOs for file upload
@@ -391,4 +475,9 @@ public async Task<IActionResult> UpdateWallpaper(int id, [FromForm] WallpaperUpd
         public string? ImageUrl { get; set; }
         public IFormFile? ImageFile { get; set; }
     }
+    public class LikeDto
+{
+    public string UserEmail { get; set; } = string.Empty;
+}
+
 }

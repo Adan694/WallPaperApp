@@ -34,7 +34,11 @@
             <button class="btn btn-download btn-lg shadow" (click)="downloadWallpaper()">
               Download
             </button>
-
+            <app-like-button
+              *ngIf="wallpaper"
+              [wallpaperId]="wallpaper.id"
+              [likes]="wallpaper.likes"
+            ></app-like-button>
             <button
               class="btn btn-favorite btn-lg shadow-sm"
               *ngIf="!isFavorite()"

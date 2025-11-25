@@ -64,5 +64,75 @@ namespace YourApp.Controllers
 
             return Ok(new { message = $"User role updated to {newRole}" });
         }
+        [HttpGet("analytics")]
+public async Task<IActionResult> GetAnalytics()
+{
+    var wallpapers = await _context.Wallpapers.ToListAsync();
+    var categories = await _context.Categories.ToListAsync();
+
+    // ---- TOTALS ----
+    var totalWallpapers = wallpapers.Count;
+    var totalCategories = categories.Count;
+    var totalDownloads = wallpapers.Sum(w => w.Downloads);
+    var totalLikes = wallpapers.Sum(w => w.Likes);
+
+    // ---- POPULAR CATEGORY ----
+    var popularCategory = wallpapers
+        .GroupBy(w => w.CategoryId)
+        .OrderByDescending(g => g.Count())
+        .Select(g => categories.First(c => c.Id == g.Key).Name)
+        .FirstOrDefault() ?? "N/A";
+
+    // ---- RECENT UPLOADS (last 7 days) ----
+    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+    var recentUploads = wallpapers
+        .Where(w => w.CreatedAt >= oneWeekAgo)
+        .OrderByDescending(w => w.CreatedAt)
+        .Take(10)
+        .ToList();
+
+    // ---- Storage ESTIMATION (2 MB per wallpaper) ----
+    var storageUsed = $"{(totalWallpapers * 2)} MB";
+
+    return Ok(new
+    {
+        totalWallpapers,
+        totalCategories,
+        totalDownloads,
+        totalLikes,
+        popularCategory,
+        recentUploads,
+        storageUsed
+    });
+}
+[HttpGet("activities")]
+public async Task<IActionResult> GetRecentActivities()
+{
+    // Just using wallpaper uploads as activity logs
+    var recent = await _context.Wallpapers
+        .OrderByDescending(w => w.CreatedAt)
+        .Take(10)
+        .ToListAsync();
+
+    var logs = recent.Select(w => new {
+        type = "upload",
+        action = "New wallpaper uploaded",
+        details = w.Title,
+        time = w.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+    });
+
+    // Add system event
+    var systemEvent = new[] {
+        new {
+            type = "system",
+            action = "System initialized",
+            details = "Admin dashboard loaded.",
+            time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm")
+        }
+    };
+
+    return Ok(systemEvent.Concat(logs));
+}
+
     }
 }

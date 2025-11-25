@@ -177,6 +177,43 @@ public async Task<bool> DeleteCategoryAsync(int id)
     await _context.SaveChangesAsync();
     return true;
 }
+public async Task<Wallpaper?> UpdateWallpaperdownloadAsync(int id, Wallpaper updated)
+{
+    var existing = await _context.Wallpapers.FindAsync(id);
+    if (existing == null) return null;
+
+    existing.Title = updated.Title;
+    existing.Description = updated.Description;
+    existing.ImageUrl = updated.ImageUrl;
+    existing.CategoryId = updated.CategoryId;
+    existing.Downloads = updated.Downloads;
+    existing.Likes = updated.Likes;
+
+    await _context.SaveChangesAsync();
+    return existing;
+}
+// Increment wallpaper downloads
+public async Task<bool> IncrementDownloadsAsync(int wallpaperId)
+{
+    var wallpaper = await _context.Wallpapers.FindAsync(wallpaperId);
+    if (wallpaper == null) return false;
+
+    wallpaper.Downloads += 1;
+    await _context.SaveChangesAsync();
+    return true;
+}
+
+// Increment wallpaper likes
+public async Task<bool> IncrementLikesAsync(int wallpaperId)
+{
+    var wallpaper = await _context.Wallpapers.FindAsync(wallpaperId);
+    if (wallpaper == null) return false;
+
+    wallpaper.Likes += 1;
+    await _context.SaveChangesAsync();
+    return true;
+}
+
 
     }
 }

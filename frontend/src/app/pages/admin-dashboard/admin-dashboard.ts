@@ -44,55 +44,95 @@ export class AdminDashboard implements OnInit {
   loadDashboardData() {
     this.isLoading = true;
 
-    // Use forkJoin to call multiple APIs in parallel
     forkJoin({
       wallpapers: this.apiService.getWallpapers(),
-      categories: this.apiService.getCategories()
+      categories: this.apiService.getCategories(),
+      analytics: this.apiService.getAnalytics(),
+      activities: this.apiService.getAdminActivities()
     }).subscribe({
-      next: ({ wallpapers, categories }) => {
-        // Calculate statistics from real data
-        this.calculateStats(wallpapers, categories);
-        this.prepareRecentWallpapers(wallpapers);
+      next: ({ wallpapers, categories, analytics, activities }) => {
+        this.dashboardStats = {
+          totalWallpapers: wallpapers.length,
+          totalCategories: categories.length,
+          totalDownloads: analytics.totalDownloads,
+          totalLikes: analytics.totalLikes,
+          popularCategory: analytics.popularCategory,
+          recentUploads: analytics.recentUploads.length,
+          storageUsed: analytics.storageUsed
+        };
+
+        this.recentWallpapers = analytics.recentUploads;
         this.prepareCategoryStats(wallpapers, categories);
-        this.generateRecentActivities(wallpapers);
+
+        // Latest 4 upload activities
+        this.recentActivities = activities
+          .filter(act => act.type === 'upload')
+          .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+          .slice(0, 4);
+
+        // Add system activity at top
+        this.recentActivities.unshift({
+          action: 'System started',
+          details: 'Admin dashboard initialized',
+          time: 'Just now',
+          type: 'system'
+        });
 
         this.isLoading = false;
         this.dataLoaded = true;
       },
       error: (error) => {
-        console.error('Error loading dashboard data:', error);
+        console.error('Dashboard load error:', error);
         this.isLoading = false;
-        this.loadSampleData(); // Fallback if API fails
+        this.loadSampleData();
       }
     });
   }
 
-  // Tab switching method
+  // Increment download
+  incrementDownload(wallpaper: any) {
+    this.apiService.incrementDownload(wallpaper.id).subscribe({
+      next: () => {
+        wallpaper.downloads = (wallpaper.downloads || 0) + 1;
+        this.dashboardStats.totalDownloads += 1;
+      },
+      error: err => console.error('Download increment error:', err)
+    });
+  }
+
+  
+  // Increment like
+  incrementLike(wallpaper: any) {
+    this.apiService.incrementLike(wallpaper.id).subscribe({
+      next: () => {
+        wallpaper.likes = (wallpaper.likes || 0) + 1;
+        this.dashboardStats.totalLikes += 1;
+      },
+      error: err => console.error('Like increment error:', err)
+    });
+  }
+
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
 
-  // Check if tab is active
   isTabActive(tab: string): boolean {
     return this.activeTab === tab;
   }
 
   private calculateStats(wallpapers: any[], categories: any[]) {
-    // Calculate total downloads and likes
     const totalDownloads = wallpapers.reduce((sum, wp) => sum + (wp.downloads || 0), 0);
     const totalLikes = wallpapers.reduce((sum, wp) => sum + (wp.likes || 0), 0);
-    
-    // Find popular category
+
     const categoryCounts: {[key: string]: number} = {};
     wallpapers.forEach(wp => {
       categoryCounts[wp.category] = (categoryCounts[wp.category] || 0) + 1;
     });
-    
-    const popularCategory = Object.keys(categoryCounts).reduce((a, b) => 
+
+    const popularCategory = Object.keys(categoryCounts).reduce((a, b) =>
       categoryCounts[a] > categoryCounts[b] ? a : b, 'Nature'
     );
 
-    // Calculate recent uploads (last 7 days)
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const recentUploads = wallpapers.filter(wp => {
@@ -100,24 +140,22 @@ export class AdminDashboard implements OnInit {
       return uploadDate ? new Date(uploadDate) > oneWeekAgo : false;
     }).length;
 
-    // Estimate storage (assuming average 2MB per wallpaper)
     const storageMB = (wallpapers.length * 2).toFixed(1);
 
     this.dashboardStats = {
       totalWallpapers: wallpapers.length,
       totalCategories: categories.length,
-      totalDownloads: totalDownloads,
-      totalLikes: totalLikes,
-      popularCategory: popularCategory,
-      recentUploads: recentUploads,
+      totalDownloads,
+      totalLikes,
+      popularCategory,
+      recentUploads,
       storageUsed: `${storageMB} MB`
     };
   }
 
   private prepareRecentWallpapers(wallpapers: any[]) {
-    // Get 4 most recent wallpapers - sort by ID if no date field
     this.recentWallpapers = wallpapers
-      .sort((a, b) => (b.id || 0) - (a.id || 0)) // Sort by ID (newest first)
+      .sort((a, b) => (b.id || 0) - (a.id || 0))
       .slice(0, 4)
       .map(wp => ({
         ...wp,
@@ -126,72 +164,34 @@ export class AdminDashboard implements OnInit {
   }
 
   private prepareCategoryStats(wallpapers: any[], categories: any[]) {
-    // Count wallpapers per category
     const categoryCounts: {[key: string]: number} = {};
     wallpapers.forEach(wp => {
       categoryCounts[wp.category] = (categoryCounts[wp.category] || 0) + 1;
     });
 
-    // Prepare category stats with colors from your backend
     this.categoryStats = categories.map(cat => ({
       name: cat.name,
       count: categoryCounts[cat.name] || 0,
       primary: cat.primary,
       secondary: cat.secondary,
       icon: this.getCategoryIcon(cat.name)
-    })).sort((a, b) => b.count - a.count).slice(0, 6); // Top 6 categories
-  }
-
-  private generateRecentActivities(wallpapers: any[]) {
-    // Generate activities based on recent uploads
-    const recentWallpapers = wallpapers
-      .sort((a, b) => (b.id || 0) - (a.id || 0)) // Sort by ID
-      .slice(0, 3);
-
-    this.recentActivities = recentWallpapers.map(wp => ({
-      action: 'New wallpaper uploaded',
-      details: wp.title,
-      time: 'Recently',
-      type: 'upload'
-    }));
-
-    // Add some system activities
-    this.recentActivities.unshift(
-      {
-        action: 'System started',
-        details: 'Admin dashboard initialized',
-        time: 'Just now',
-        type: 'system'
-      }
-    );
+    })).sort((a, b) => b.count - a.count).slice(0, 6);
   }
 
   private getCategoryIcon(category: string): string {
     const icons: {[key: string]: string} = {
-      'Nature': '🌿',
-      'Space': '🚀',
-      'Abstract': '🎨',
-      'Animals': '🐾',
-      'Cities': '🏙️',
-      'Travel': '✈️',
-      'Technology': '💻',
-      'Food': '🍕',
-      'Sports': '⚽',
-      'Music': '🎵',
-      'Art': '🖼️',
-      'Cars': '🚗',
-      'Fashion': '👗',
-      'History': '🏛️',
-      'Movies': '🎬'
+      'Nature': '🌿', 'Space': '🚀', 'Abstract': '🎨', 'Animals': '🐾',
+      'Cities': '🏙️', 'Travel': '✈️', 'Technology': '💻', 'Food': '🍕',
+      'Sports': '⚽', 'Music': '🎵', 'Art': '🖼️', 'Cars': '🚗',
+      'Fashion': '👗', 'History': '🏛️', 'Movies': '🎬'
     };
     return icons[category] || '📁';
   }
 
   private loadSampleData() {
-    // Fallback data structure matching your API
     this.dashboardStats = {
       totalWallpapers: 0,
-      totalCategories: 15, // From your categories array
+      totalCategories: 15,
       totalDownloads: 0,
       totalLikes: 0,
       popularCategory: 'Nature',
@@ -202,12 +202,7 @@ export class AdminDashboard implements OnInit {
     this.recentWallpapers = [];
     this.categoryStats = [];
     this.recentActivities = [
-      {
-        action: 'Backend connected',
-        details: 'API is responding',
-        time: 'Just now',
-        type: 'system'
-      }
+      { action: 'Backend connected', details: 'API is responding', time: 'Just now', type: 'system' }
     ];
   }
 
@@ -216,11 +211,7 @@ export class AdminDashboard implements OnInit {
   }
 
   getActivityIcon(type: string): string {
-    const icons: {[key: string]: string} = {
-      upload: '🖼️',
-      system: '⚙️',
-      user: '👤'
-    };
+    const icons: {[key: string]: string} = { upload: '🖼️', system: '⚙️', user: '👤' };
     return icons[type] || '📝';
   }
 }
