@@ -48,6 +48,11 @@ export class AdminWallpapers implements OnInit {
   
   isLoading: boolean = true;
   isSubmitting: boolean = false;
+  // In AdminWallpapers component
+showPreviewModal: boolean = false;
+previewImageUrl: string = '';
+previewTitle: string = '';
+
 
   constructor(
     public authService: Auth,
@@ -123,6 +128,16 @@ export class AdminWallpapers implements OnInit {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     return this.filteredWallpapers.slice(startIndex, startIndex + this.itemsPerPage);
   }
+viewWallpaper(wallpaper: any) {
+  this.previewImageUrl = wallpaper.imageUrl;
+  this.previewTitle = wallpaper.title;
+  this.showPreviewModal = true;
+}
+closePreviewModal() {
+  this.showPreviewModal = false;
+  this.previewImageUrl = '';
+  this.previewTitle = '';
+}
 
   // Search and filter methods
   onSearch() {

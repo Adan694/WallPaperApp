@@ -1,0 +1,299 @@
+<app-admin-sidebar></app-admin-sidebar>
+<div class="admin-settings">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo">
+          <span class="logo-icon">🎨</span>
+          <h1>Wallpapers Admin</h1>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info">
+          <span class="user-avatar">👤</span>
+          <span class="user-name">{{ authService.getCurrentUser()?.name }}</span>
+          <button class="logout-btn" (click)="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="settings-main">
+    <div class="settings-content">
+      <h2>Settings</h2>
+      <p>Configure your platform, wallpapers, users, and system preferences</p>
+
+      <!-- Tabs -->
+      <div class="tabs-header">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'general'"
+          (click)="setActiveTab('general')"
+        >
+          General
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'wallpapers'"
+          (click)="setActiveTab('wallpapers')"
+        >
+          Wallpaper
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'users'"
+          (click)="setActiveTab('users')"
+        >
+          Users
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'appearance'"
+          (click)="setActiveTab('appearance')"
+        >
+          Appearance
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'security'"
+          (click)="setActiveTab('security')"
+        >
+          Security
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'backup'"
+          (click)="setActiveTab('backup')"
+        >
+          Backup
+        </button>
+      </div>
+
+      <!-- Tabs Content -->
+      <div class="tabs-content">
+        <!-- General -->
+        <div class="tab-pane" [class.active]="activeTab === 'general'">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Site Information</h3>
+
+              <div class="form-group">
+                <label for="siteName">Site Name</label>
+                <input
+                  id="siteName"
+                  type="text"
+                  [(ngModel)]="settings.siteName"
+                  class="form-input"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="siteLogo">Site Logo</label>
+                <input id="siteLogo" type="file" (change)="onLogoUpload($event)" />
+              </div>
+
+              <div class="form-group">
+                <label for="siteDescription">Site Description</label>
+                <textarea
+                  id="siteDescription"
+                  [(ngModel)]="settings.siteDescription"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="defaultLanguage">Default Language</label>
+                <select id="defaultLanguage" [(ngModel)]="settings.defaultLanguage">
+                  <option *ngFor="let lang of languages" [value]="lang.code">
+                    {{ lang.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallpaper Settings -->
+        <div class="tab-pane" [class.active]="activeTab === 'wallpapers'">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Wallpaper Upload Settings</h3>
+
+              <div class="form-group">
+                <label for="allowedFileTypes">Allowed File Types</label>
+                <input
+                  id="allowedFileTypes"
+                  type="text"
+                  [(ngModel)]="settings.allowedFileTypes"
+                  placeholder="jpg,png,webp"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="maxUploadSize">Max Upload Size (MB)</label>
+                <input id="maxUploadSize" type="number" [(ngModel)]="settings.maxUploadSize" />
+              </div>
+
+              <div class="form-group">
+                <label for="defaultCategory">Default Category</label>
+                <select id="defaultCategory" [(ngModel)]="settings.defaultCategory">
+                  <option *ngFor="let category of categories" [value]="category.name">
+                    {{ category.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="autoApproveUploads">
+                  <input
+                    id="autoApproveUploads"
+                    type="checkbox"
+                    [(ngModel)]="settings.autoApproveUploads"
+                  />
+                  Auto-approve uploads
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label for="enableUserUploads">
+                  <input
+                    id="enableUserUploads"
+                    type="checkbox"
+                    [(ngModel)]="settings.enableUserUploads"
+                  />
+                  Allow user submissions
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Settings -->
+        <div class="tab-pane" [class.active]="activeTab === 'users'">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>User Management</h3>
+
+              <div class="form-group">
+                <label for="passwordPolicy">Password Policy</label>
+                <input
+                  id="passwordPolicy"
+                  type="text"
+                  [(ngModel)]="settings.passwordPolicy"
+                  placeholder="Min 8 chars, 1 uppercase..."
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="enable2FA">
+                  <input id="enable2FA" type="checkbox" [(ngModel)]="settings.enable2FA" /> Enable
+                  Two-Factor Authentication
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label for="rolesPermissions">Roles & Permissions</label>
+                <textarea
+                  id="rolesPermissions"
+                  rows="3"
+                  [(ngModel)]="settings.rolesPermissions"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="tab-pane" [class.active]="activeTab === 'appearance'">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Display & Theme</h3>
+
+              <div class="form-group">
+                <label for="defaultTheme">Default Theme</label>
+                <select id="defaultTheme" [(ngModel)]="settings.defaultTheme">
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="auto">Auto</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="defaultLayout">Default Wallpaper Layout</label>
+                <select id="defaultLayout" [(ngModel)]="settings.defaultLayout">
+                  <option value="grid">Grid</option>
+                  <option value="masonry">Masonry</option>
+                  <option value="carousel">Carousel</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="categoryColor">Category Colors</label>
+                <input id="categoryColor" type="color" [(ngModel)]="settings.categoryColor" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security -->
+        <div class="tab-pane" [class.active]="activeTab === 'security'">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Security Settings</h3>
+
+              <div class="form-group">
+                <label for="sessionTimeout">Session Timeout (minutes)</label>
+                <input id="sessionTimeout" type="number" [(ngModel)]="settings.sessionTimeout" />
+              </div>
+
+              <div class="form-group">
+                <label for="maintenanceMode">
+                  <input
+                    id="maintenanceMode"
+                    type="checkbox"
+                    [(ngModel)]="settings.maintenanceMode"
+                  />
+                  Enable Maintenance Mode
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label for="ipWhitelist">IP Whitelist (comma separated)</label>
+                <input id="ipWhitelist" type="text" [(ngModel)]="settings.ipWhitelist" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup & Maintenance -->
+        <div class="tab-pane" [class.active]="activeTab === 'backup'">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Backup & Maintenance</h3>
+
+              <div class="form-group">
+                <button class="btn-primary" (click)="backupDatabase()">Backup Database</button>
+              </div>
+
+              <div class="form-group">
+                <button class="btn-primary" (click)="backupMedia()">Backup Media</button>
+              </div>
+
+              <div class="form-group">
+                <button class="btn-danger" (click)="restoreBackup()">Restore Backup</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Changes -->
+      <div class="save-changes">
+        <button class="btn-primary" (click)="saveSettings()">Save Changes</button>
+      </div>
+    </div>
+  </main>
+</div>

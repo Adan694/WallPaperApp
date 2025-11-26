@@ -83,15 +83,19 @@ export class LikeButton implements OnChanges {
 
   constructor(private auth: UserAuth, private api: ApiService) {}
 
-  ngOnChanges(changes: SimpleChanges) {
-    this.normalizedLikes = this.normalizeLikes(this.likes);
-  }
+  ngOnChanges() {
+  this.normalizedLikes = this.normalizeLikes(this.likes);
+  console.log('likes input:', this.likes, 'normalizedLikes:', this.normalizedLikes);
+}
 
-  private normalizeLikes(likes: string[] | null | string): string[] {
-    if (Array.isArray(likes)) return likes;
-    if (typeof likes === 'string') return [likes];
-    return [];
+private normalizeLikes(likes: string[] | string | null | undefined): string[] {
+  if (!likes) return [];
+  if (Array.isArray(likes)) return likes;
+  if (typeof likes === 'string') {
+    try { return JSON.parse(likes); } catch { return [likes]; }
   }
+  return [];
+}
 
   get hasLiked(): boolean {
     const user = this.auth.getUser();

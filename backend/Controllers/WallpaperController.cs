@@ -77,7 +77,7 @@ namespace Backend.Controllers
                 imageUrl = fullImageUrl,
                 category = wallpaper.Category.Name,
                 downloads = wallpaper.Downloads,
-                likes = wallpaper.Likes
+    likes = wallpaper.LikedBy // send the array of emails
             });
         }
 
@@ -135,7 +135,9 @@ namespace Backend.Controllers
                     title = w.Title,
                     description = w.Description,
                     imageUrl = fullImageUrl,
-                    category = w.Category.Name
+                    category = w.Category.Name,
+                        likes = w.LikedBy // add this
+
                 };
             });
 

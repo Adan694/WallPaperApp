@@ -11,6 +11,7 @@ import { AdminWallpapers } from './pages/admin-wallpapers/admin-wallpapers';
 import { AdminUsers } from './pages/admin-users/admin-users';
 import { AdminCategories } from './pages/admin-categories/admin-categories';
 import { LoginComponent } from './pages/user-login/user-login';
+import { Settings } from './pages/settings/settings';
 
 
 export const routes: Routes = [
@@ -23,6 +24,8 @@ export const routes: Routes = [
   { path: 'admin/wallpapers', component: AdminWallpapers },
   { path: 'admin/users', component: AdminUsers },
 { path: 'admin/categories', component: AdminCategories },
-  { path: 'login', component: LoginComponent } 
+  { path: 'login', component: LoginComponent },
+    { path: 'admin/settings', component: Settings },
+
 
 ];

@@ -52,14 +52,23 @@ export class WallpaperDetail implements OnInit {
     setTimeout(() => this.toastMessage = '', 3000);
   }
 
- ngOnInit() {
+ngOnInit() {
   const id = Number(this.route.snapshot.paramMap.get('id'));
-
   if (id) {
     this.api.getWallpaperById(id).subscribe({
-      next: (wp: FavoriteWallpaper) => {
-        // Ensure likes is always an array
-        const likesArray = Array.isArray(wp.likes) ? wp.likes : JSON.parse(wp.likes || '[]');
+      next: (wp: FavoriteWallpaper & { likes?: any }) => { // cast likes as any
+        // Normalize likes to always be an array
+        let likesArray: string[] = [];
+
+        if (Array.isArray(wp.likes)) {
+          likesArray = wp.likes;
+        } else if (typeof wp.likes === 'string' && wp.likes.length > 0) {
+          try {
+            likesArray = JSON.parse(wp.likes);
+          } catch {
+            likesArray = [];
+          }
+        }
 
         this.wallpaper = { ...wp, likes: likesArray };
         setTimeout(() => (this.bgLoaded = true), 100);
@@ -74,6 +83,7 @@ export class WallpaperDetail implements OnInit {
 
   this.loadUserFavorites();
 }
+
 
 
   /** Load favorites for the current logged-in user */

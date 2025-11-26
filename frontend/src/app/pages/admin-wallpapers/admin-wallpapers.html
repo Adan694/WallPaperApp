@@ -139,7 +139,13 @@
                 title="Wallpaper"
               />
               <div class="wallpaper-overlay">
-                <button class="action-btn view-btn" aria-label="View wallpaper">👁️</button>
+                <button
+                  class="action-btn view-btn"
+                  aria-label="View wallpaper"
+                  (click)="viewWallpaper(wallpaper)"
+                >
+                  👁️
+                </button>
                 <button
                   class="action-btn edit-btn"
                   (click)="openEditModal(wallpaper)"
@@ -461,6 +467,7 @@
       </div>
     </div>
   </div>
+
   <!-- Delete Confirmation Modal -->
   <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeModals()">
     <div
@@ -486,6 +493,22 @@
         <button class="btn-danger" (click)="deleteWallpaper()" [disabled]="isSubmitting">
           {{ isSubmitting ? 'Deleting...' : 'Delete Wallpaper' }}
         </button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="showPreviewModal" class="modal-overlay" (click)="closePreviewModal()">
+    <div
+      class="modal-content"
+      (click)="$event.stopPropagation()"
+      role="dialog"
+      aria-labelledby="preview-modal-title"
+    >
+      <div class="modal-header">
+        <h2 id="preview-modal-title">{{ previewTitle }}</h2>
+        <button class="close-btn" (click)="closePreviewModal()" aria-label="Close modal">×</button>
+      </div>
+      <div class="modal-body">
+        <img [src]="previewImageUrl" alt="" class="preview-image" />
       </div>
     </div>
   </div>
