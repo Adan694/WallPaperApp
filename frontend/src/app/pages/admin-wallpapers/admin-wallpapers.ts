@@ -52,6 +52,15 @@ export class AdminWallpapers implements OnInit {
 showPreviewModal: boolean = false;
 previewImageUrl: string = '';
 previewTitle: string = '';
+// Preview for ADD modal
+imagePreview: string | null = null;
+fileInfo: any = null;
+selectedFile: File | null = null;
+
+// Preview for EDIT modal
+editImagePreview: string | null = null;
+editFileInfo: any = null;
+editedWallpaperFile: File | null = null;
 
 
   constructor(
@@ -179,9 +188,10 @@ closePreviewModal() {
       imageUrl: '',
       description: '',
       imageFile: null,
-      useFileUpload: false
+      useFileUpload: true
     };
     this.showAddModal = true;
+    
   }
 
 openEditModal(wallpaper: any) {
@@ -203,58 +213,209 @@ openEditModal(wallpaper: any) {
   }
 
   closeModals() {
-    this.showAddModal = false;
-    this.showEditModal = false;
-    this.showDeleteModal = false;
-    this.selectedWallpaper = null;
-    this.isSubmitting = false;
+  // Close all modals
+  this.showAddModal = false;
+  this.showEditModal = false;
+  this.showDeleteModal = false;
+
+  // Reset form selections
+  this.selectedWallpaper = null;
+  this.isSubmitting = false;
+
+  // Clear Add modal file inputs
+  this.newWallpaper.imageFile = null;
+  this.newWallpaper.imageUrl = '';
+  this.newWallpaper.useFileUpload = true;
+  this.imagePreview = null;
+  this.fileInfo = null;
+  this.selectedFile = null;
+
+  // Clear Edit modal file inputs
+  if (this.selectedWallpaper) {
+    this.selectedWallpaper.imageFile = null;
+    this.selectedWallpaper.imageUrl = '';
+    this.selectedWallpaper.useFileUpload = false;
   }
+  this.editImagePreview = null;
+  this.editFileInfo = null;
+  this.editedWallpaperFile = null;
+
+  // Reset the actual <input> elements if needed
+  const addInput = document.getElementById('add-image-file') as HTMLInputElement;
+  if (addInput) addInput.value = '';
+
+  const editInput = document.getElementById('edit-image-file') as HTMLInputElement;
+  if (editInput) editInput.value = '';
+}
 
   // File handling methods
- onFileSelected(event: any, isEdit: boolean = false) {
-  const file = event.target.files[0];
-  console.log('File selected:', file);
+//  onFileSelected(event: any, isEdit: boolean = false) {
+//   const file = event.target.files[0];
+//   console.log('File selected:', file);
   
-  if (file) {
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      alert('Please select a valid image file (JPEG, PNG, WebP, GIF)');
-      event.target.value = ''; // Clear the file input
-      return;
-    }
+//   if (file) {
+//     // Validate file type
+//     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg'];
+//     if (!validTypes.includes(file.type)) {
+//       alert('Please select a valid image file (JPEG, PNG, WebP, GIF)');
+//       event.target.value = ''; // Clear the file input
+//       return;
+//     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB');
-      event.target.value = ''; // Clear the file input
-      return;
-    }
+//     // Validate file size (max 10MB)
+//     if (file.size > 10 * 1024 * 1024) {
+//       alert('File size must be less than 10MB');
+//       event.target.value = ''; // Clear the file input
+//       return;
+//     }
 
-    if (isEdit && this.selectedWallpaper) {
-      this.selectedWallpaper.imageFile = file;
-      this.selectedWallpaper.useFileUpload = true;
-      // Don't clear the URL - let the backend handle which one to use
-    } else {
-      this.newWallpaper.imageFile = file;
-      this.newWallpaper.useFileUpload = true;
-      // Don't clear the URL - let the backend handle which one to use
-    }
+//     if (isEdit && this.selectedWallpaper) {
+//       this.selectedWallpaper.imageFile = file;
+//       this.selectedWallpaper.useFileUpload = true;
+//       // Don't clear the URL - let the backend handle which one to use
+//     } else {
+//       this.newWallpaper.imageFile = file;
+//       this.newWallpaper.useFileUpload = true;
+//       // Don't clear the URL - let the backend handle which one to use
+//     }
     
-    console.log('File assigned to form:', isEdit ? this.selectedWallpaper : this.newWallpaper);
-  } else {
-    console.log('No file selected');
+//     console.log('File assigned to form:', isEdit ? this.selectedWallpaper : this.newWallpaper);
+//   } else {
+//     console.log('No file selected');
+//   }
+  // }
+  async onFileSelected(event: any, isEdit: boolean = false, droppedFile?: File) {
+  const file = droppedFile ?? event.target.files?.[0];
+  if (!file) return;
+
+  // -----------------------------
+  // VALIDATION RULES
+  // -----------------------------
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+  const maxSizeBytes = 10 * 1024 * 1024;        // 10MB
+  const minWidth = 640;
+  const minHeight = 360;
+  const maxWidth = 4096;
+  const maxHeight = 4096;
+  const compressThreshold = 2 * 1024 * 1024;   // compress if >2MB
+
+  // Type check
+  if (!allowedTypes.includes(file.type)) {
+    alert("Only JPG, JPEG, PNG, WEBP images allowed.");
+    return;
   }
+
+  // Size check
+  if (file.size > maxSizeBytes) {
+    alert("File too large. Max size is 10MB.");
+    return;
+  }
+
+  // Load image to validate resolution
+  const resolutionCheck = await new Promise<{ ok: boolean; width: number; height: number; }>((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      if (img.width < 700 || img.height < 500) {
+  alert("Image too small! Minimum is 800×600.");
+  this.clearFileSelection();
+  return;
 }
-  clearFileSelection(isEdit: boolean = false) {
-    if (isEdit && this.selectedWallpaper) {
-      this.selectedWallpaper.imageFile = null;
-      this.selectedWallpaper.useFileUpload = false;
-    } else {
-      this.newWallpaper.imageFile = null;
-      this.newWallpaper.useFileUpload = false;
-    }
+
+      resolve({ ok: true, width: img.width, height: img.height });
+    };
+    img.onerror = () => resolve({ ok: false, width: 0, height: 0 });
+    img.src = URL.createObjectURL(file);
+  });
+
+  if (!resolutionCheck.ok) {
+    alert("Invalid or corrupt image.");
+    return;
   }
+
+  const { width, height } = resolutionCheck;
+
+  // Min resolution
+  if (width < minWidth || height < minHeight) {
+    alert(`Image is too small. Minimum resolution: ${minWidth}×${minHeight}px`);
+    return;
+  }
+
+  // Max resolution
+  if (width > maxWidth || height > maxHeight) {
+    alert(`Image resolution too large.\nMax allowed: ${maxWidth}×${maxHeight}px\nYour image: ${width}×${height}`);
+    return;
+  }
+
+  // -----------------------------
+  // OPTIONAL AUTO-COMPRESSION
+  // -----------------------------
+  const processFile = async (f: File) => {
+    if (f.size <= compressThreshold) return f;
+
+    const bitmap = await createImageBitmap(f);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(bitmap, 0, 0);
+
+   const blob: Blob | null = await new Promise((resolve) =>
+  canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.85)
+);
+
+
+    if (!blob) return f;
+
+    return new File([blob], f.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+  };
+
+  const finalFile = await processFile(file);
+
+  // -----------------------------
+  // LIVE PREVIEW + INFO
+  // -----------------------------
+  const reader = new FileReader();
+  reader.onload = () => {
+    const previewData = {
+      preview: reader.result as string,
+      name: finalFile.name,
+      type: finalFile.type,
+      sizeMB: (finalFile.size / (1024 * 1024)).toFixed(2),
+      width,
+      height
+    };
+
+    if (isEdit && this.selectedWallpaper) {
+      this.editImagePreview = previewData.preview;
+      this.editedWallpaperFile = finalFile;
+      this.selectedWallpaper.useFileUpload = true;
+      this.editFileInfo = previewData;
+    } else {
+      this.imagePreview = previewData.preview;
+      this.selectedFile = finalFile;
+      this.newWallpaper.imageFile = finalFile;
+      this.newWallpaper.useFileUpload = true;
+      this.fileInfo = previewData;
+    }
+  };
+  reader.readAsDataURL(finalFile);
+}
+
+ clearFileSelection(isEdit: boolean = false) {
+  if (isEdit && this.selectedWallpaper) {
+    this.selectedWallpaper.imageFile = null;
+    this.selectedWallpaper.useFileUpload = false;
+  } else {
+    this.newWallpaper.imageFile = null;
+    this.newWallpaper.useFileUpload = false;
+  }
+
+  // ALSO reset the input element manually
+  const inputEl = document.getElementById('add-image-file') as HTMLInputElement;
+  if (inputEl) inputEl.value = '';
+}
 
   // Add Wallpaper
   // addWallpaper() {
@@ -314,6 +475,58 @@ openEditModal(wallpaper: any) {
   //     }
   //   });
   // }
+  
+  async onImageUrlChange(url: string) {
+  if (!url || url.trim() === "") {
+    this.imagePreview = null;
+    this.fileInfo = null;
+    return;
+  }
+
+  try {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+
+      // Reject too-small images
+      if (width < 200 || height < 100) {
+        this.fileInfo = null;
+        this.imagePreview = null;
+        alert("Image resolution is too small! Minimum is 800×600.");
+        return;
+      }
+
+      this.imagePreview = url;
+
+      // Approximate file size (URLs don’t give true size)
+      this.fileInfo = {
+        name: url.split("/").pop(),
+        type: "image/url",
+        sizeMB: "Unknown",
+        width,
+        height
+      };
+    };
+
+    img.onerror = () => {
+      this.imagePreview = null;
+      this.fileInfo = null;
+    };
+
+    img.src = url;
+  } catch (error) {
+    console.error("Error loading URL image", error);
+  }
+}
+onEditImageUrlChange(url: string) {
+  this.onImageUrlChange(url);
+  this.editImagePreview = this.imagePreview;
+  this.editFileInfo = this.fileInfo;
+}
+
 addWallpaper() {
   console.log('=== ENHANCED VALIDATION ===');
   console.log('Form data:', this.newWallpaper);

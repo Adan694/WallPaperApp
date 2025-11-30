@@ -282,10 +282,12 @@
               id="add-image-url"
               type="text"
               [(ngModel)]="newWallpaper.imageUrl"
+              (input)="onImageUrlChange(newWallpaper.imageUrl)"
               class="form-input"
               placeholder="Enter image URL"
               aria-required="true"
             />
+
             <button
               type="button"
               class="switch-upload-btn"
@@ -301,7 +303,7 @@
             <input
               id="add-image-file"
               type="file"
-              (change)="onFileSelected($event)"
+              (change)="onFileSelected($event, false)"
               accept="image/*"
               class="form-input"
               aria-required="true"
@@ -317,6 +319,18 @@
             >
               🔗 Or use URL instead
             </button>
+          </div>
+          <!-- Image Preview -->
+          <div *ngIf="imagePreview" class="preview-box">
+            <img [src]="imagePreview" alt="" class="preview-img" />
+          </div>
+
+          <!-- File Info -->
+          <div *ngIf="fileInfo" class="file-info-box">
+            <p><strong>Name:</strong> {{ fileInfo.name }}</p>
+            <p><strong>Type:</strong> {{ fileInfo.type }}</p>
+            <p><strong>Size:</strong> {{ fileInfo.sizeMB }} MB</p>
+            <p><strong>Resolution:</strong> {{ fileInfo.width }} × {{ fileInfo.height }}</p>
           </div>
         </div>
 
@@ -410,12 +424,14 @@
           <div class="image-source-option" *ngIf="!newWallpaper.useFileUpload">
             <label for="add-image-url">Image URL *</label>
             <input
-              id="add-image-url"
+              id="edit-image-url"
               type="text"
-              [(ngModel)]="newWallpaper.imageUrl"
+              [(ngModel)]="selectedWallpaper.imageUrl"
+              (input)="onEditImageUrlChange(selectedWallpaper.imageUrl)"
               class="form-input"
               placeholder="https://example.com/image.jpg"
             />
+
             <div class="form-hint" *ngIf="newWallpaper.imageFile">
               ℹ️ You have a file selected, but URL mode is active
             </div>
@@ -427,7 +443,7 @@
             <input
               id="add-image-file"
               type="file"
-              (change)="onFileSelected($event)"
+              (change)="onFileSelected($event, true)"
               accept="image/*"
               class="form-input"
               #fileInput
@@ -445,6 +461,18 @@
             <div class="file-info" *ngIf="!newWallpaper.imageFile">
               <span>📁 No file selected</span>
             </div>
+          </div>
+          <!-- EDIT Preview -->
+          <div *ngIf="editImagePreview" class="preview-box">
+            <img [src]="editImagePreview" alt="" class="preview-img" />
+          </div>
+
+          <!-- EDIT File Info -->
+          <div *ngIf="editFileInfo" class="file-info-box">
+            <p><strong>Name:</strong> {{ editFileInfo.name }}</p>
+            <p><strong>Type:</strong> {{ editFileInfo.type }}</p>
+            <p><strong>Size:</strong> {{ editFileInfo.sizeMB }} MB</p>
+            <p><strong>Resolution:</strong> {{ editFileInfo.width }} × {{ editFileInfo.height }}</p>
           </div>
         </div>
 
