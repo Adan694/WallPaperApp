@@ -141,7 +141,7 @@
                     </div>
                     <div class="activity-content">
                       <p class="activity-action">{{ activity.action }}</p>
-                      <span class="activity-time">{{ activity.time }}</span>
+                      <span class="activity-time">{{ activity.time | date : 'short' }}</span>
                     </div>
                   </div>
                 </div>
@@ -198,8 +198,33 @@
           </div>
 
           <!-- Analytics Tab -->
+          <!-- Analytics Tab -->
           <div class="tab-pane" [class.active]="activeTab === 'analytics'">
             <div class="analytics-grid">
+              <!-- Summary Cards -->
+              <div class="summary-cards">
+                <div class="summary-card">
+                  <h4>Total Downloads</h4>
+                  <p>{{ dashboardStats.totalDownloads }}</p>
+                </div>
+
+                <div class="summary-card">
+                  <h4>Total Likes</h4>
+                  <p>{{ dashboardStats.totalLikes }}</p>
+                </div>
+
+                <div class="summary-card">
+                  <h4>Storage Used</h4>
+                  <p>{{ dashboardStats.storageUsed }}</p>
+                </div>
+
+                <div class="summary-card">
+                  <h4>Recent Uploads</h4>
+                  <p>{{ dashboardStats.recentUploads }}</p>
+                </div>
+              </div>
+
+              <!-- Performance Metrics (yours — untouched) -->
               <div class="analytics-card">
                 <h3>Performance Metrics</h3>
                 <div class="metrics-list">
@@ -221,22 +246,50 @@
                 </div>
               </div>
 
+              <!-- Top Categories (enhanced but original logic kept) -->
               <div class="analytics-card">
                 <h3>Top Categories</h3>
                 <div class="top-categories">
                   <div
                     class="top-category"
-                    *ngFor="let category of categoryStats.slice(0, 5); let i = index"
+                    *ngFor="let category of categoryStats.slice(0, 6); let i = index"
                   >
-                    <span class="category-rank">{{ i + 1 }}</span>
-                    <span class="category-name">{{ category.name }}</span>
-                    <span class="category-percentage">
+                    <div class="category-rank">{{ i + 1 }}</div>
+                    <div class="category-name">{{ category.icon }} {{ category.name }}</div>
+
+                    <div class="bar-container">
+                      <div
+                        class="bar"
+                        [style.width.%]="(category.count / dashboardStats.totalWallpapers) * 100"
+                        [style.background]="category.primary"
+                      ></div>
+                    </div>
+
+                    <div class="category-percentage">
                       {{
                         dashboardStats.totalWallpapers > 0
                           ? ((category.count / dashboardStats.totalWallpapers) * 100).toFixed(1)
                           : '0'
                       }}%
-                    </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Downloaded Wallpapers (NEW ADDITION) -->
+              <div class="analytics-card">
+                <h3>Top Downloaded Wallpapers</h3>
+
+                <div class="top-wallpapers">
+                  <div class="wallpaper-row" *ngFor="let wp of topDownloadedWallpapers">
+                    <img [src]="wp.imageUrl" alt="" class="thumb" />
+
+                    <div class="wp-info">
+                      <h4>{{ wp.title }}</h4>
+                      <p>{{ wp.category }}</p>
+                    </div>
+
+                    <div class="wp-stats">⬇️ {{ wp.downloads }}</div>
                   </div>
                 </div>
               </div>
@@ -253,14 +306,14 @@
                     <span class="action-icon">➕</span>
                     <span>Add New Wallpaper</span>
                   </button>
-                  <button class="action-btn">
+                  <button routerLink="/admin/categories" class="action-btn">
                     <span class="action-icon">📁</span>
                     <span>Manage Categories</span>
                   </button>
-                  <button class="action-btn">
+                  <!-- <button class="action-btn">
                     <span class="action-icon">✏️</span>
                     <span>Edit Featured</span>
-                  </button>
+                  </button> -->
                 </div>
               </div>
 
@@ -271,28 +324,29 @@
                     <span class="action-icon">👥</span>
                     <span>View All Users</span>
                   </button>
-                  <button class="action-btn">
+                  <!-- <button class="action-btn">
                     <span class="action-icon">🛡️</span>
                     <span>Moderate Content</span>
-                  </button>
+                  </button> -->
                 </div>
               </div>
 
               <div class="action-category">
                 <h3>System</h3>
                 <div class="action-buttons">
-                  <button class="action-btn">
+                  <button class="action-btn" (click)="setActiveTab('analytics')">
                     <span class="action-icon">📊</span>
                     <span>View Analytics</span>
                   </button>
-                  <button class="action-btn">
+
+                  <button routerLink="/admin/settings" class="action-btn">
                     <span class="action-icon">⚙️</span>
                     <span>System Settings</span>
                   </button>
-                  <button class="action-btn">
+                  <!-- <button class="action-btn">
                     <span class="action-icon">💾</span>
                     <span>Backup Data</span>
-                  </button>
+                  </button> -->
                 </div>
               </div>
             </div>

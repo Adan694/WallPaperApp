@@ -3,6 +3,7 @@ import { ApiService } from '../../services/api';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserAuth } from '../../services/user-auth';
+import { SettingsService } from '../../services/settings';
 
 interface Category {
   id: number;
@@ -15,54 +16,72 @@ interface Category {
   selector: 'app-navbar',
   imports: [RouterLink, CommonModule],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.scss',
+  styleUrls: ['./navbar.scss'],
 })
 export class Navbar implements OnInit {
   categories: Category[] = [];
   isLoggedIn = false;
 
-  constructor(private api: ApiService, private router: Router, private auth: UserAuth) {}
+  // Site settings
+  siteName = 'WallPaperApp';
+siteLogoUrl = '';
 
- ngOnInit() {
-  this.api.getCategories().subscribe({
-    next: (data: Category[]) => {
-      this.categories = data;
+  constructor(
+    private api: ApiService,
+    private router: Router,
+    private auth: UserAuth,
+    private settingsService: SettingsService
+  ) {}
+
+  ngOnInit() {
+    this.loadCategories();
+    this.checkLogin();
+    this.loadSettings();
+  }
+
+  loadCategories() {
+    this.api.getCategories().subscribe({
+      next: (data: Category[]) => (this.categories = data),
+      error: (err) => {
+        console.error('Failed to load categories:', err);
+        this.categories = [];
+      },
+    });
+  }
+
+  loadSettings() {
+  this.settingsService.getSettings().subscribe({
+    next: (data: any) => {
+      if (data.siteName) this.siteName = data.siteName;
+if (data.siteLogoUrl) this.siteLogoUrl = data.siteLogoUrl; // use as-is
     },
-    error: (err) => {
-      console.error('Failed to load categories:', err);
-      this.categories = [];
-    }
+    error: (err) => console.error('Failed to load settings:', err),
   });
-
-  this.checkLogin();
 }
-
 
   searchWallpaper(keyword: string) {
-  if (!keyword) return;
-  window.dispatchEvent(new CustomEvent('search-wallpapers', { detail: keyword }));
-}
+    if (!keyword) return;
+    window.dispatchEvent(new CustomEvent('search-wallpapers', { detail: keyword }));
+  }
 
   goToCategory(categoryName: string) {
-  this.router.navigate(['/category', categoryName]);
+    this.router.navigate(['/category', categoryName]);
   }
-  
+
   searchTimeout: any;
-
   liveSearch(keyword: string) {
-  if (this.searchTimeout) clearTimeout(this.searchTimeout);
-  this.searchTimeout = setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('search-wallpapers', { detail: keyword }));
-  }, 300);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('search-wallpapers', { detail: keyword }));
+    }, 300);
   }
 
- checkLogin() {
+  checkLogin() {
     this.isLoggedIn = this.auth.isLoggedIn();
   }
 
   logout() {
     this.auth.logout();
     this.isLoggedIn = false;
-    // this.router.navigate(['/login']); // redirect to user login page
   }
 }

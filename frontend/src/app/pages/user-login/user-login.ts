@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserAuth } from '../../services/user-auth';
+import { SettingsService } from '../../services/settings';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -10,7 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './user-login.scss',
   imports: [FormsModule, CommonModule]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   mode: 'login' | 'register' = 'login';
   name = '';
   email = '';
@@ -18,7 +19,33 @@ export class LoginComponent {
   isLoading = false;
   message = { text: '', type: '' };
 
-  constructor(private auth: UserAuth, private router: Router) {}
+  passwordPolicy: string = ''; // from backend
+  passwordRegex: RegExp | null = null;
+
+  constructor(private auth: UserAuth, private router: Router, private settingsService: SettingsService) {}
+
+  ngOnInit(): void {
+    // Load backend password policy
+    this.settingsService.getSettings().subscribe({
+  next: (data: any) => {
+    console.log('Backend settings:', data);
+    if (data.passwordPolicy) {
+      this.passwordPolicy = data.passwordPolicy;
+      try {
+        // Remove leading/trailing slashes if present
+        const pattern = this.passwordPolicy.replace(/^\/|\/$/g, '');
+        this.passwordRegex = new RegExp(pattern);
+        console.log('Password regex:', this.passwordRegex);
+      } catch (err) {
+        console.error('Invalid password policy regex:', err);
+        this.passwordRegex = null;
+      }
+    }
+  },
+  error: (err) => console.error('Failed to load password policy:', err)
+});
+
+  }
 
   switchMode() {
     this.mode = this.mode === 'login' ? 'register' : 'login';
@@ -28,6 +55,12 @@ export class LoginComponent {
   submit() {
     if (!this.email || !this.password || (this.mode === 'register' && !this.name)) {
       this.showMessage('Please fill in all fields', 'error');
+      return;
+    }
+
+    // Validate password against backend policy
+    if (this.mode === 'register' && this.passwordRegex && !this.passwordRegex.test(this.password)) {
+      this.showMessage('Password does not meet the required policy', 'error');
       return;
     }
 

@@ -6,6 +6,7 @@ import { ApiService } from '../../services/api';
 import { forkJoin } from 'rxjs';
 import { Auth } from '../../services/auth';
 import { AdminSidebar } from '../../components/admin-sidebar/admin-sidebar';
+import { SettingsService } from '../../services/settings';
 
 @Component({
   selector: 'app-admin-wallpapers',
@@ -62,15 +63,30 @@ editImagePreview: string | null = null;
 editFileInfo: any = null;
 editedWallpaperFile: File | null = null;
 
+settings: any = null;
 
   constructor(
     public authService: Auth,
-    private apiService: ApiService
+    private apiService: ApiService,
+      private settingsService: SettingsService
+
   ) {}
 
   ngOnInit() {
-    this.loadData();
+      this.loadSettings();
+
   }
+  loadSettings() {
+  this.settingsService.getSettings().subscribe({
+    next: (data) => {
+      this.settings = data;
+
+      // Load wallpapers after settings are available
+      this.loadData();
+    },
+    error: (err) => console.error("Failed to load settings:", err)
+  });
+}
 
   loadData() {
     this.isLoading = true;
@@ -181,18 +197,19 @@ closePreviewModal() {
   }
 
   // Modal methods
-  openAddModal() {
-    this.newWallpaper = {
-      title: '',
-      category: this.categories[0]?.name || '',
-      imageUrl: '',
-      description: '',
-      imageFile: null,
-      useFileUpload: true
-    };
-    this.showAddModal = true;
-    
-  }
+openAddModal() {
+  this.newWallpaper = {
+    title: '',
+    category: this.settings.defaultCategory || this.categories[0]?.name || '',
+    imageUrl: '',
+    description: '',
+    imageFile: null,
+    useFileUpload: true
+  };
+
+  this.showAddModal = true;
+}
+
 
 openEditModal(wallpaper: any) {
   this.selectedWallpaper = { 
@@ -291,10 +308,23 @@ openEditModal(wallpaper: any) {
   // -----------------------------
   // VALIDATION RULES
   // -----------------------------
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-  const maxSizeBytes = 10 * 1024 * 1024;        // 10MB
-  const minWidth = 640;
-  const minHeight = 360;
+ const mimeMap: any = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp"
+};
+
+const allowedTypes = this.settings.allowedFileTypes
+  .split(',')
+  .map((ext: string) => mimeMap[ext.trim().toLowerCase()]);
+
+
+const maxSizeBytes = this.settings.maxUploadSize * 1024 * 1024;
+
+const minWidth = this.settings.minImageWidth || 640;
+const minHeight = this.settings.minImageHeight || 360;
+
   const maxWidth = 4096;
   const maxHeight = 4096;
   const compressThreshold = 2 * 1024 * 1024;   // compress if >2MB

@@ -30,7 +30,14 @@
   <div class="auth-form">
     <input *ngIf="mode === 'register'" [(ngModel)]="name" placeholder="Your Name" />
     <input [(ngModel)]="email" placeholder="Email" type="email" />
+
     <input [(ngModel)]="password" type="password" placeholder="Password" />
+
+    <!-- Password policy hint -->
+    <small *ngIf="mode === 'register' && passwordPolicy" class="password-hint">
+      Password must be 8–20 characters, and include at least: 1 uppercase letter, 1 lowercase
+      letter, 1 number, and 1 special character (!@#$%^&*).
+    </small>
 
     <button (click)="submit()" [disabled]="isLoading">
       {{ isLoading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account' }}

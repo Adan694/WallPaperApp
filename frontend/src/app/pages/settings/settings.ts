@@ -4,6 +4,7 @@ import { Auth } from '../../services/auth';
 import { AdminSidebar } from '../../components/admin-sidebar/admin-sidebar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SettingsService } from '../../services/settings';
 
 @Component({
   selector: 'app-admin-settings',
@@ -11,7 +12,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./settings.scss'], 
   imports: [AdminSidebar, CommonModule, FormsModule]
 })
-export class Settings implements OnInit {
+export class AdminSettings implements OnInit {
   // Active tab
   activeTab: string = 'general';
 
@@ -52,7 +53,7 @@ export class Settings implements OnInit {
     ipWhitelist: ''
   };
 
-  constructor(public authService: Auth, private router: Router) {}
+  constructor(public authService: Auth, private router: Router, private settingsService: SettingsService  ) {}
 
   ngOnInit(): void {
     this.loadSettings();
@@ -69,42 +70,63 @@ export class Settings implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // Load existing settings (placeholder)
   loadSettings() {
-    // Here you would call your API to fetch settings
-    // Example: this.settings = await settingsService.getSettings();
-    console.log('Loading settings...');
+  this.settingsService.getSettings().subscribe({
+    next: (data: any) => {
+      this.settings = {
+        ...this.settings,
+        ...data,
+        siteLogo: null  // avoid loading base64 / file
+      };
+    },
+    error: (err) => console.error('Failed to load settings:', err)
+  });
+}
+
+saveSettings() {
+  const fd = new FormData();
+
+Object.keys(this.settings).forEach((key) => {
+  if (key === "siteLogo" || key === "siteLogoUrl") return;
+
+  const value = (this.settings as any)[key];
+
+  // Convert all non-files to strings
+  fd.append(key, value !== null ? String(value) : "");
+});
+
+
+
+  if (this.settings.siteLogo) {
+fd.append("file", this.settings.siteLogo!);
   }
 
-  // Save settings
-  saveSettings() {
-    // Here you would call your API to save settings
-    // Example: settingsService.saveSettings(this.settings);
-    console.log('Saving settings...', this.settings);
-  }
+  this.settingsService.updateSettings(fd).subscribe({
+    next: () => alert("Settings saved successfully!"),
+    error: (err) => console.error("Failed to save settings:", err)
+  });
+}
 
-  // Logo upload handler
-  onLogoUpload(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.settings.siteLogo = input.files[0];
-      console.log('Logo selected:', this.settings.siteLogo.name);
-    }
+
+onLogoUpload(event: Event) {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    const file = input.files[0];
+    this.settings.siteLogo = file;  
   }
+}
+
 
   // Backup & restore functions
   backupDatabase() {
     console.log('Backing up database...');
-    // call your backup service
   }
 
   backupMedia() {
     console.log('Backing up media...');
-    // call your backup service
   }
 
   restoreBackup() {
     console.log('Restoring backup...');
-    // call your restore service
   }
 }

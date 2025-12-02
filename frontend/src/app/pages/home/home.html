@@ -26,28 +26,70 @@
     </button>
   </div>
 </section>
-
 <!-- Wallpapers Section -->
 <section class="wallpapers-section container my-5">
   <h2 class="section-heading mb-4">Latest Wallpapers</h2>
 
-  <!-- Wallpapers Grid -->
-  <div class="row g-4" *ngIf="filteredWallpapers.length; else noWallpapers">
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let w of filteredWallpapers" appFadeIn>
-      <div class="wallpaper-card position-relative overflow-hidden rounded shadow-sm">
-        <img [src]="w.imageUrl" alt="Wallpaper image" title="Wallpaper image" class="card-img" />
-        <div class="overlay d-flex flex-column justify-content-end p-3">
-          <h5 class="overlay-title mb-1">{{ w.title }}</h5>
-          <p class="overlay-category mb-0">{{ w.category }}</p>
-          <button
-            class="btn btn-sm btn-outline-light mt-2"
-            (click)="goToWallpaper(w.id); $event.stopPropagation()"
-          >
-            View
-          </button>
+  <!-- Check if wallpapers exist -->
+  <div *ngIf="filteredWallpapers.length; else noWallpapers">
+    <!-- Wrapper div for all layouts -->
+    <div class="wallpapers-wrapper">
+      <!-- Grid layout -->
+      <div class="row g-4" *ngIf="layout === 'grid'">
+        <div
+          class="col-12 col-sm-6 col-md-4 col-lg-3"
+          *ngFor="let w of filteredWallpapers"
+          appFadeIn
+        >
+          <div class="wallpaper-card position-relative overflow-hidden rounded shadow-sm">
+            <img [src]="w.imageUrl" alt="{{ w.title }}" class="card-img" />
+            <div class="overlay d-flex flex-column justify-content-end p-3">
+              <h5 class="overlay-title mb-1">{{ w.title }}</h5>
+              <p class="overlay-category mb-0">{{ w.category }}</p>
+              <button
+                class="btn btn-sm btn-outline-light mt-2"
+                (click)="goToWallpaper(w.id); $event.stopPropagation()"
+              >
+                View
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Masonry layout -->
+      <div class="masonry-layout" *ngIf="layout === 'masonry'">
+        <div class="masonry-item" *ngFor="let w of filteredWallpapers" appFadeIn>
+          <img [src]="w.imageUrl" alt="{{ w.title }}" class="card-img rounded shadow-sm" />
+          <div class="overlay d-flex flex-column justify-content-end p-2">
+            <h6 class="mb-0">{{ w.title }}</h6>
+            <small>{{ w.category }}</small>
+            <button
+              class="btn btn-sm btn-outline-light mt-2"
+              (click)="goToWallpaper(w.id); $event.stopPropagation()"
+            >
+              View
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carousel layout -->
+      <div class="carousel-wrapper" *ngIf="layout === 'carousel'">
+        <button class="carousel-nav prev" (click)="scrollCarousel(-1)">&#10094;</button>
+        <div class="carousel-track" #carousel>
+          <div class="carousel-item" *ngFor="let w of filteredWallpapers" appFadeIn>
+            <img [src]="w.imageUrl" alt="{{ w.title }}" class="card-img rounded shadow-sm" />
+            <div class="overlay d-flex flex-column justify-content-end p-2">
+              <h6 class="mb-0">{{ w.title }}</h6>
+              <small>{{ w.category }}</small>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-nav next" (click)="scrollCarousel(1)">&#10095;</button>
+      </div>
     </div>
+    <!-- end wallpapers-wrapper -->
   </div>
 
   <!-- No Wallpapers Found -->

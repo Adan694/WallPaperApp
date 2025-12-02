@@ -27,7 +27,8 @@ export class AdminDashboard implements OnInit {
   recentWallpapers: any[] = [];
   categoryStats: any[] = [];
   recentActivities: any[] = [];
-  
+  topDownloadedWallpapers: any[] = [];
+
   isLoading = true;
   dataLoaded = false;
   activeTab: string = 'overview'; // Track active tab
@@ -51,6 +52,12 @@ export class AdminDashboard implements OnInit {
       activities: this.apiService.getAdminActivities()
     }).subscribe({
       next: ({ wallpapers, categories, analytics, activities }) => {
+        console.log('Wallpapers:', wallpapers);
+    console.log('Analytics:', analytics);
+    console.log('Analytics.recentUploads:', analytics.recentUploads);
+        console.log('Categories:', categories);
+          this.prepareRecentWallpapers(wallpapers);  // ✅ FIX
+
         this.dashboardStats = {
           totalWallpapers: wallpapers.length,
           totalCategories: categories.length,
@@ -61,8 +68,9 @@ export class AdminDashboard implements OnInit {
           storageUsed: analytics.storageUsed
         };
 
-        this.recentWallpapers = analytics.recentUploads;
+        // this.recentWallpapers = analytics.recentUploads;
         this.prepareCategoryStats(wallpapers, categories);
+      this.prepareTopWallpapers(wallpapers);       // ✔ TOP LIST ADDED
 
         // Latest 4 upload activities
         this.recentActivities = activities
@@ -74,7 +82,7 @@ export class AdminDashboard implements OnInit {
         this.recentActivities.unshift({
           action: 'System started',
           details: 'Admin dashboard initialized',
-          time: 'Just now',
+  time: new Date(), 
           type: 'system'
         });
 
@@ -88,7 +96,12 @@ export class AdminDashboard implements OnInit {
       }
     });
   }
-
+prepareTopWallpapers(wallpapers: any[]) {
+  this.topDownloadedWallpapers = wallpapers
+    .filter(wp => wp.downloads > 0)
+    .sort((a, b) => b.downloads - a.downloads)
+    .slice(0, 5);
+}
   // Increment download
   incrementDownload(wallpaper: any) {
     this.apiService.incrementDownload(wallpaper.id).subscribe({
@@ -156,7 +169,7 @@ export class AdminDashboard implements OnInit {
   private prepareRecentWallpapers(wallpapers: any[]) {
     this.recentWallpapers = wallpapers
       .sort((a, b) => (b.id || 0) - (a.id || 0))
-      .slice(0, 4)
+      .slice(0, 6)
       .map(wp => ({
         ...wp,
         displayTitle: wp.title.length > 20 ? wp.title.substring(0, 20) + '...' : wp.title
