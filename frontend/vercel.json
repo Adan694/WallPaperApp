@@ -1,4 +1,4 @@
 {
-  "buildCommand": "ng build --configuration=production --budgets='initial:3MB' --budgets='anyComponentStyle:100kB'",
+  "buildCommand": "ng build --configuration=production",
   "outputDirectory": "dist/frontend/browser"
 }
