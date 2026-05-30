@@ -1,0 +1,38 @@
+# ASP.NET Core build outputs
+/bin/
+/obj/
+/out/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+
+# Rider files (if using JetBrains)
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/
+
+# Environment variables
+.env
+appsettings.Development.json
+
+# Uploaded files (keep folder structure but ignore contents)
+/wwwroot/uploads/*.jpg
+/wwwroot/uploads/*.png
+/wwwroot/uploads/*.jpeg
+/wwwroot/uploads/*.webp
+
+# Logs
+*.log
+logs/
+
+# Database files
+*.mdf
+*.ldf
+
+# OS files
+.DS_Store
+Thumbs.db
